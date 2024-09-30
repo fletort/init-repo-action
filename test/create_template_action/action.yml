@@ -1,0 +1,76 @@
+name: Template Creation
+description: 'Action to Init the local Test Template Repository.'
+inputs:
+  repo_name:
+    required: true
+    type: string
+  repo_org:
+    required: true
+    type: string
+  is_template:
+    type: boolean
+    default: true
+  token:
+    type: string
+    required: true
+  uuid_filename:
+    type: string
+    default: uuid.txt
+
+outputs:
+   uuid: 
+    description: "The created uuid"
+    value: ${{ steps.copy_content.outputs.uuid }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout Local Repo
+      id: checkout
+      uses: actions/checkout@v4
+    - name: Create Template repository
+      uses: f1lander/create-repository-action@v1.0.2
+      with:
+        name: ${{ inputs.repo_name }}
+        org: ${{ inputs.repo_org }}
+        access-token: '${{ inputs.token }}'
+    
+    - name: Switch repository as a template
+      if: ${{ inputs.is_template }}
+      shell: bash
+      run: |
+        gh repo edit ${{ inputs.repo_org }}/${{ inputs.repo_name }} --template
+      env:
+        GH_TOKEN: '${{ inputs.token }}'
+    - name: Create Published repository
+      uses: f1lander/create-repository-action@v1.0.2
+      with:
+        name: ${{ inputs.repo_name }}
+        org: ${{ inputs.repo_org }}
+        access-token: '${{ inputs.token }}'
+    - name: Checkout Template repository
+      id: checkout_template
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
+        path: ${{ inputs.repo_name }}
+        token: ${{ inputs.token }}
+    - name: Copy test workflow & content
+      id: copy_content
+      shell: bash
+      run: |
+        cp -r ${{ github.action_path }}/template/. ${{ inputs.repo_name }}/
+        uuid=$(uuidgen)
+        echo $uuid > ${{ inputs.repo_name }}/${{ inputs.uuid_filename }}
+        echo "uuid=${uuid}" >> "$GITHUB_OUTPUT"
+        repo=${{ github.repository }}
+        repo_escape="${repo/\//\\\/}"
+        sed -i -e "s/\[ACTION_FULL_NAME\]/${repo_escape}@${{ github.sha }}/g" ${{ inputs.repo_name }}/.github/workflows/auto_init.yml
+    - name: Commit & Push changes To Template repository
+      uses: actions-js/push@master
+      with:
+        github_token: '${{ inputs.token }}'
+        directory: ${{ inputs.repo_name }}
+        repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
+  
+
