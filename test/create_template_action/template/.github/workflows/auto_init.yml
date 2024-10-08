@@ -1,0 +1,31 @@
+name: AutoInit Test
+
+on:
+  # repository_dispatch:
+  #   types: [start-test]
+  workflow_dispatch:
+    inputs:
+      distinct_id: # As requested by codex-/return-dispatch@v1
+        required: true
+      repository_deployment:
+        required: true
+
+
+jobs:
+  test-auto-init:
+    name: Auto Init Current Repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo distinct ID ${{ github.event.inputs.distinct_id }} # As requested by codex-/return-dispatch@v1
+        run: echo ${{ github.event.inputs.distinct_id }}
+          
+      - name: Auto Init
+        id: test
+        uses: [ACTION_FULL_NAME]
+        with:
+            repository_deployment: ${{ github.event.inputs.repository_deployment }}
+            token: ${{ secrets.TEST_TOKEN }}
+            testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
+      
+      - name: echo TestSpace ID ${{ steps.test.outputs.testspace_space_id }} # As requested by our test code
+        run: echo ${{ steps.test.outputs.testspace_space_id }}

@@ -1,0 +1,28 @@
+name: Publishing Test
+
+on:
+  # repository_dispatch:
+  #   types: [start-test]
+  workflow_dispatch:
+    inputs:
+      distinct_id: # As requested by codex-/return-dispatch@v1
+
+jobs:
+  test-publishing:
+    name: Publish to another repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: echo distinct ID ${{ github.event.inputs.distinct_id }} # As requested by codex-/return-dispatch@v1
+        run: echo ${{ github.event.inputs.distinct_id }}
+      
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+      
+      - name: Test if we can publish
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          external_repository: fletort-test/init-repo-action-test-published
+          publish_branch: main
+          deploy_key: ${{ secrets.PUBLISHING_KEY }}
+          publish_dir: ./

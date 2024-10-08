@@ -1,0 +1,67 @@
+# Reusable Worflow managing Publishing Test
+name: Test
+on:
+  workflow_call:
+    inputs:
+      waited_uuid:
+        required: true
+        type: string
+    secrets:
+      TEST_TOKEN:
+        required: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Local Repo
+        id: checkout
+        uses: actions/checkout@v4
+    
+      # Dispatch an action and get the run ID and URL
+      - name: Start the functional test for publishing action
+        uses: codex-/return-dispatch@v1
+        id: return_dispatch
+        with:
+          token: ${{ secrets.TEST_TOKEN }}
+          ref: main
+          repo: ${{ vars.TEST_NEW_REPO_NAME }}
+          owner: ${{ vars.TEST_NEW_REPO_ORG }}
+          workflow: publishing.yml
+      
+      # Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
+      - name: Waiting end of the functional test for publishing action
+        uses: Codex-/await-remote-run@v1.0.0
+        with:
+          token: ${{ github.token }}
+          repo: ${{ vars.TEST_NEW_REPO_NAME }}
+          owner: ${{ vars.TEST_NEW_REPO_ORG }}
+          run_id: ${{ steps.return_dispatch.outputs.run_id }}
+      - name: Checkout Published repository
+        id: checkout_published
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
+          path: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
+          token: '${{ secrets.TEST_TOKEN }}'
+      
+      - name: Install bats
+        id: install-bats
+        run: ./test/install_bats.sh
+        
+      - name: Test Waited Results
+        id: test-action-result
+        env:
+          PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}  
+          TEST_UUID_FILE: ${{ vars.TEST_UUID_FILENAME }}
+          WAITED_UUID: ${{ inputs.waited_uuid }}
+        run: ./test/bats/bin/bats --report-formatter junit test/test_publishing.bats
+
+      - name: Keep Test Report
+        id: test-report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test_publishing
+          path: report.xml
+          retention-days: 1

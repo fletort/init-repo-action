@@ -1,0 +1,108 @@
+name: 'Init Repository'
+description: 'Internal Action to Init My repositories following internal rules.'
+author: 'fletort'
+branding:
+  icon: 'sliders'
+  color: 'red'
+inputs:
+  repository:
+    description: 'Repository Name to init. Indicate the repository name with owner. For example owner/my_project'
+    default: ${{ github.repository }}
+  template:
+    description: 'Template to use to init the repository (use only if repo is not already created)'
+    default: no_init
+  repository_deployment:
+    description: 'Repo on which we want to make deployement. For example owner/my_published_repo'
+  token:
+    description: >
+      Personal access token (PAT) used to:
+      - create the repository (if requested).
+      - fetch the repository
+      - store secret inside the repository And add publish key to repository_deployment
+      - create a MR on the repository
+      We recommend using a service account with the least permissions necessary.
+      Also when generating a new PAT, select the least scopes necessary.
+  testspace_token:
+    description: >
+      Personal testspace token used to interact with the testspace API to create
+      the project.
+  testspace_domain:
+    description: >
+      Testspace SubDomain
+    default: ${{ github.repository_owner }}
+
+outputs:
+  testspace_space_id:
+    description: The testspace space id created
+    value: ${{ steps.testspace_creation.outputs.id }}
+
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create the repository from the template
+      if:  ${{ inputs.template != 'no_init' }}
+      shell: bash
+      # We are waiting to see the main branch on the created repo
+      # without that we have an error on the following checkout
+      run: |
+        gh repo create ${{ inputs.repository }} --public --template ${{ inputs.template }}
+        while [[ -z $(git ls-remote --heads https://github.com/${{ inputs.repository }}.git main) ]]
+        do
+          sleep 1
+        done
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+
+    - name: Checkout
+      id: checkout
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ inputs.repository }}
+        path: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+    - name: "Manage connection to internal global deployement repo: ${{ inputs.repository_deployment }}"
+      id: report_repo_cnx
+      uses: fletort/generate-ssh-deploy-repo-action@v1
+      with:
+        client_repo: ${{ inputs.repository }}
+        deploy_repo: ${{ inputs.repository_deployment }}
+        token: ${{ inputs.token }}
+    - name: "TestSpace Project Creation"
+      id: testspace_creation
+      uses: fletort/testspace-create-action@v1
+      with:
+        token: ${{ inputs.testspace_token }}
+        repository: ${{ inputs.repository }}
+        domain: ${{ inputs.testspace_domain }}
+    - name: Create develop Branch
+      # need write permission on the token (not the case by default on organization)
+      shell: bash
+      run: |
+        cd ${{ inputs.repository }}
+        git checkout -b develop
+        git push origin develop
+    - name: Define Branch Protection
+      shell: bash
+      run: |
+        gh api "repos/${{ inputs.repository }}/branches/main/protection" --method PUT --input ${{ github.action_path }}/branch_protection.json
+        gh api "repos/${{ inputs.repository }}/branches/develop/protection" --method PUT --input ${{ github.action_path }}/branch_protection.json
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+    - name: "Manage Dynamic Template"
+      id: template
+      env:
+        REPOSITORY_PATH: ${{ inputs.repository }}
+        TESTSPACE_SPACE_ID: ${{ steps.testspace_creation.outputs.id }}
+        CI_REPORT_REPO_PATH: ${{ inputs.repository_deployment }}
+      uses: fletort/jinja2-template-action@v1
+    - name: Create Pull Request for Template Resolution
+      uses: peter-evans/create-pull-request@v6
+      with:
+        path: ${{ inputs.repository }}
+        commit-message: 'Dynamic Template Resolution [skip ci]'
+        branch: 'template_resolution'
+        base: 'develop'
+        title: 'Dynamic Template Resolution'
+        body: 'Jinja2 Template Resolution made by jinja2-template-action'
+        token: ${{ inputs.token }}
