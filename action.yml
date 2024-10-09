@@ -30,6 +30,8 @@ inputs:
     description: >
       Testspace SubDomain
     default: ${{ github.repository_owner }}
+  delete_workflow:
+    default: true
 
 outputs:
   testspace_space_id:
@@ -96,6 +98,24 @@ runs:
         TESTSPACE_SPACE_ID: ${{ steps.testspace_creation.outputs.id }}
         CI_REPORT_REPO_PATH: ${{ inputs.repository_deployment }}
       uses: fletort/jinja2-template-action@v1
+
+    - name: Remove Init Workflow on Dynamic Template
+      if: ${{ inputs.delete_workflow }}
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+      run: |
+        if [[ "${{ github.repository }}" == "${{ inputs.repository }}" ]]; then
+          workflowPath=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ github.repository }}/actions/runs/${{ github.run_id }} \
+            --jq .path)
+          rm "${{ inputs.repository }}/$workflowPath"
+        else
+          grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
+        fi
+          
     - name: Create Pull Request for Template Resolution
       uses: peter-evans/create-pull-request@v6
       with:
