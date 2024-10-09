@@ -117,7 +117,7 @@ runs:
         fi
           
     - name: Create Pull Request for Template Resolution
-      uses: peter-evans/create-pull-request@v6
+      uses: peter-evans/create-pull-request@v7
       with:
         path: ${{ inputs.repository }}
         commit-message: 'Dynamic Template Resolution [skip ci]'
