@@ -58,7 +58,7 @@ jobs:
     steps:
         # Dispatch an action and get the run ID and URL
         - name: Start the AutoInit Workflow
-          uses: codex-/return-dispatch@v1
+          uses: codex-/return-dispatch@v2
           id: return_dispatch
           with:
             token: ${{ secrets.TEST_TOKEN }}
@@ -70,7 +70,7 @@ jobs:
         
         # Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
         - name: Waiting end of the AutoInit Workflow
-          uses: Codex-/await-remote-run@v1.0.0
+          uses: Codex-/await-remote-run@v1.12.2
           with:
             token: ${{ github.token }}
             repo: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
