@@ -58,7 +58,7 @@ jobs:
     steps:
         # Dispatch an action and get the run ID and URL
         - name: Start the AutoInit Workflow
-          uses: codex-/return-dispatch@v1
+          uses: codex-/return-dispatch@v2
           id: return_dispatch
           with:
             token: ${{ secrets.TEST_TOKEN }}
