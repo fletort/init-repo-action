@@ -80,8 +80,6 @@ setup() {
   assert_equal "$enforce_admins" "true"
 }
 
-
-
 @test "Template Resolution is done on a dedicated branch" {
   cd ${REPO_NAME}
   git fetch
@@ -90,6 +88,14 @@ setup() {
   assert_file_contains ./README.md "Repo: ${REPO_ORG}/${REPO_NAME}"
   assert_file_contains ./README.md "TestSpaceId: ${TESTSPACE_SPACE_ID}"
   assert_file_contains ./README.md "CIReportRepoPath: ${PUBLISHED_REPO_ORG}/${PUBLISHED_REPO_NAME}"
+  cd ..
+}
+
+@test "Workflow File is deleted" {
+  cd ${REPO_NAME}
+  git fetch
+  git switch template_resolution
+  assert_file_not_exist .github/workflows/auto_init.yml
   cd ..
 }
 

@@ -25,6 +25,10 @@ organization, where needed secrets can be available globally.
 - Define main and develop branch protection
 - Manage Dynamic Template Substitution with the help of the
 [fletort/template-common-js](https://github.com/fletort/template-common-js) action.
+- Remove AutoInit Workflow (this feature can be disabled with the `delete-workflow` option):
+  - on a Dynamic Template (repo that init itself), the current workflow file (calling the current action) is deleted
+  - on a tool behaviour (repo targeted is not the repo calling the action), workflow contening a call to the current action are deleted
+    (such workflow exist if the repo is created from a Template with Dynamic Feature)
 - Create the Pull Request for this Template resolution code modification
 with the help of [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request) action.
 
@@ -98,6 +102,7 @@ All other inputs are **optional**.
 | `token` | The token that action (and used actions) will use. See token. | **MANDATORY** |
 | `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY** |
 | `testspace_domain` | Testspace SubDomain where the testspace project will be created | `${{ github.repository_owner }}` |
+| `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted | `true`|
 
 #### token
 
