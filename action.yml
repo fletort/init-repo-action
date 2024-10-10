@@ -115,7 +115,19 @@ runs:
         else
           grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
         fi
-          
+
+    - name: Rename Specific Directories
+      shell: bash
+      run: |
+        find . -type d -name "\$*" -print0 | while read -d $'\0' dirpath;
+        do
+          lastdir=${dirpath##*/}
+          path=${dirpath%/*}
+          newdirpath="$path/${lastdir#$}"
+          echo "Rename directory ${dirpath} to ${newdirpath}"
+          mv "${dirpath}" "${newdirpath}"
+        done
+
     - name: Create Pull Request for Template Resolution
       uses: peter-evans/create-pull-request@v7
       with:
