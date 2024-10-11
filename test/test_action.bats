@@ -99,6 +99,14 @@ setup() {
   cd ..
 }
 
+@test "Directories are renamed" {
+  cd ${REPO_NAME}
+  git fetch
+  git switch template_resolution
+  assert_file_exist test_dir/.gitkeep
+  assert_file_exist .github/test_subdir/.gitkeep
+}
+
 @test "A PR is open for the Template Resolution" {
   run gh pr list --repo ${REPO_ORG}/${REPO_NAME} --json title,headRefName,baseRefName
   assert_line --partial '"baseRefName":"develop"'
