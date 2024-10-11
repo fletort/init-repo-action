@@ -103,8 +103,13 @@ setup() {
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution
+  assert_file_not_exist $test_dir/.gitkeep
   assert_file_exist test_dir/.gitkeep
+  assert_file_not_exist .github/$test_subdir/.gitkeep
   assert_file_exist .github/test_subdir/.gitkeep
+  # Following assertion added for bug gh-014
+  assert_file_not_exist .newtest/.gitkeep
+  assert_file_exist .newtest/.gitkeep2
 }
 
 @test "A PR is open for the Template Resolution" {
