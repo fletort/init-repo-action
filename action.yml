@@ -125,6 +125,7 @@ runs:
           path=${dirpath%/*}
           newdirpath="$path/${lastdir#$}"
           echo "Rename directory ${dirpath} to ${newdirpath}"
+          rm -rf "${newdirpath}"
           mv "${dirpath}" "${newdirpath}"
         done
 

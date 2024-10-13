@@ -29,6 +29,9 @@ organization, where needed secrets can be available globally.
   - on a Dynamic Template (repo that init itself), the current workflow file (calling the current action) is deleted
   - on a tool behaviour (repo targeted is not the repo calling the action), workflow contening a call to the current action are deleted
     (such workflow exist if the repo is created from a Template with Dynamic Feature)
+- Rename all directorie from the template that beging with the `$` character.
+For example the `$.github` directory will be renamed to `.github`.
+If the final directory exists, it is replaced with the content of the renamed directory.
 - Create the Pull Request for this Template resolution code modification
 with the help of [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request) action.
 
