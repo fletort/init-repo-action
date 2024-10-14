@@ -1,0 +1,87 @@
+name: Test in Tool Mode with all feature
+on:
+  workflow_call:
+    secrets:
+      TEST_TOKEN:
+        required: true
+      TESTSPACE_TOKEN:
+        required: true
+
+jobs:
+  test_tool_prerequisite:
+    name: Prerequisite
+    runs-on: ubuntu-latest
+    outputs:
+      uuid: ${{ steps.create_template.outputs.uuid }}
+    steps:
+        - name: Clean Test Data
+          env:
+            GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          run: |
+            gh repo delete ${{ vars.TEST_TEMPLATE_REPO_ORG}}/${{ vars.TEST_TEMPLATE_REPO_NAME }} --yes || true
+            gh repo delete ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }} --yes || true
+            gh repo delete ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }} --yes || true
+
+        - name: Create Published repository
+          uses: f1lander/create-repository-action@v1.0.2
+          with:
+            name: '${{ vars.TEST_PUBLISHED_REPO_NAME }}'
+            org: '${{ vars.TEST_PUBLISHED_REPO_ORG }}'
+            access-token: '${{ secrets.TEST_TOKEN }}'
+
+        - name: Checkout Local Repo
+          id: checkout
+          uses: actions/checkout@v4
+
+        - name: Create Template repository
+          id: create_template
+          uses: ./test/create_template_action/
+          with:
+            repo_name: ${{ vars.TEST_TEMPLATE_REPO_NAME }}
+            repo_org: ${{ vars.TEST_TEMPLATE_REPO_ORG }}
+            token: ${{ secrets.TEST_TOKEN }}
+            uuid_filename: ${{ vars.TEST_UUID_FILENAME }}
+
+  run_tool_action:
+    name: Run
+    needs: test_tool_prerequisite
+    runs-on: ubuntu-latest
+    outputs:
+      testspace_space_id: ${{ steps.run-local-action.outputs.testspace_space_id }}
+    steps:
+
+        - name: Checkout Local Repo
+          id: checkout
+          uses: actions/checkout@v4
+
+        - name: Run Local Action
+          id: run-local-action
+          uses: ./
+          with:
+            repository: ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }}
+            template: ${{ vars.TEST_TEMPLATE_REPO_ORG }}/${{ vars.TEST_TEMPLATE_REPO_NAME }}
+            repository_deployment: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
+            token: ${{ secrets.TEST_TOKEN }}
+            testspace_link_enable: true
+            testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
+            testspace_domain: ${{ vars.TEST_NEW_REPO_ORG }}
+
+  test_tool_result:
+    name: Check 
+    needs: [test_tool_prerequisite,run_tool_action]
+    uses: ./.github/workflows/reusable_test_result.yml
+    with:
+      testspace_id: ${{ needs.run_tool_action.outputs.testspace_space_id }}
+      waited_uuid: ${{needs.test_tool_prerequisite.outputs.uuid}}
+      repo_name: ${{ vars.TEST_NEW_REPO_NAME }}
+      repo_org: ${{ vars.TEST_NEW_REPO_ORG }}
+      test_name: test_tool
+    secrets: inherit
+
+  test_publishing_feature:
+    name: Publishing
+    needs: [test_tool_prerequisite,run_tool_action]
+    uses: ./.github/workflows/reusable_test_publishing.yml
+    with:
+      waited_uuid: ${{ needs.test_tool_prerequisite.outputs.uuid }}
+    secrets: inherit
