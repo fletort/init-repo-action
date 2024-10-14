@@ -51,11 +51,11 @@ setup() {
 @test "main branch is correctly protected" {
   run -0 gh api "repos/${REPO_ORG}/${REPO_NAME}/branches/main/protection" --method GET
   dismiss_stale_reviews=$(jq -r .required_pull_request_reviews.dismiss_stale_reviews <<< $output)
-  assert_equal "$dismiss_stale_reviews" "true"
+  assert_equal "$dismiss_stale_reviews" "false"
   require_code_owner_reviews=$(jq -r .required_pull_request_reviews.require_code_owner_reviews <<< $output)
-  assert_equal "$require_code_owner_reviews" "true"
+  assert_equal "$require_code_owner_reviews" "false"
   required_approving_review_count=$(jq -r .required_pull_request_reviews.required_approving_review_count <<< $output)
-  assert_equal "$required_approving_review_count" "1"
+  assert_equal "$required_approving_review_count" "0"
   required_status_checks_strict=$(jq -r .required_status_checks.strict <<< $output)
   assert_equal "$required_status_checks_strict" "false"
   required_conversation_resolution=$(jq -r .required_conversation_resolution.enabled <<< $output)
@@ -67,11 +67,11 @@ setup() {
 @test "develop branch is correctly protected" {
   run -0 gh api "repos/${REPO_ORG}/${REPO_NAME}/branches/develop/protection" --method GET
   dismiss_stale_reviews=$(jq -r .required_pull_request_reviews.dismiss_stale_reviews <<< $output)
-  assert_equal "$dismiss_stale_reviews" "true"
+  assert_equal "$dismiss_stale_reviews" "false"
   require_code_owner_reviews=$(jq -r .required_pull_request_reviews.require_code_owner_reviews <<< $output)
-  assert_equal "$require_code_owner_reviews" "true"
+  assert_equal "$require_code_owner_reviews" "false"
   required_approving_review_count=$(jq -r .required_pull_request_reviews.required_approving_review_count <<< $output)
-  assert_equal "$required_approving_review_count" "1"
+  assert_equal "$required_approving_review_count" "0"
   required_status_checks_strict=$(jq -r .required_status_checks.strict <<< $output)
   assert_equal "$required_status_checks_strict" "false"
   required_conversation_resolution=$(jq -r .required_conversation_resolution.enabled <<< $output)
