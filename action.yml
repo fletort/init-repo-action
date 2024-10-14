@@ -112,7 +112,7 @@ runs:
             /repos/${{ github.repository }}/actions/runs/${{ github.run_id }} \
             --jq .path)
           rm "${{ inputs.repository }}/$workflowPath"
-        else
+        elif [ -d "${{ inputs.repository }}/.github/workflows/" ]; then
           grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
         fi
 
