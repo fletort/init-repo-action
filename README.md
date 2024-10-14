@@ -21,6 +21,7 @@ organization, where needed secrets can be available globally.
 [generate-ssh-deploy-repo-action](https://github.com/fletort/generate-ssh-deploy-repo-action) action.
 - Create the linked TestSpace Project with the help of the
 [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) action in the specified `testspace_domain`
+if asked with `testspace_link_enable` parameter.
 - Create a develop branch on the new repository
 - Define main and develop branch protection
 - Manage Dynamic Template Substitution with the help of the
@@ -50,6 +51,7 @@ when generating a new PAT, select the least scopes necessary.
     template: owner/my_template_repo
     repository_deployment: owner/repo_on_which_we_can_deploy
     token: ${{ secrets.PAT }}
+    testspace_link_enable: true
     testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
     testspace_domain: testspace_domain
 ```
@@ -62,6 +64,7 @@ You can also pin to a [specific release](https://github.com/fletort/init-repo-ac
   with:
     repository_deployment: owner/repo_on_which_we_can_deploy
     token: ${{ secrets.PAT }}
+    testspace_link_enable: true
     testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
 ```
 You can also pin to a [specific release](https://github.com/fletort/init-repo-action/releases) version in the format `@v1.x.x`
@@ -86,6 +89,7 @@ jobs:
         with:
           repository_deployment: owner/repo_on_which_we_can_deploy
           token: ${{ secrets.PAT }}
+          testspace_link_enable: true
           testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
 ```
 
@@ -103,7 +107,8 @@ All other inputs are **optional**.
 | `template` | Template Repository to use to create the repository. Indicate the repository name with owner. If the repository is already created, indicates `no_init`  | `no_init` |
 | `repository_deployment` | Repository on which `repository` will be able to deploy to through ssh credentials. Indicate the repository name with owner. | **MANDATORY** |
 | `token` | The token that action (and used actions) will use. See token. | **MANDATORY** |
-| `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY** |
+| `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable. | `false` |
+| `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY if testspace feature is enabled with `testspace_link_enable`** |
 | `testspace_domain` | Testspace SubDomain where the testspace project will be created | `${{ github.repository_owner }}` |
 | `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted | `true`|
 

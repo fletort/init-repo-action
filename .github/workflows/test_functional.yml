@@ -16,113 +16,25 @@ on:
 # - TEST_AUTOINIT_REPO_ORG
 
 jobs:
-  test_tool_prerequisite:
+  test_tool:
     name: Tool
-    uses: ./.github/workflows/reusable_test_prerequisite_tool.yml
+    uses: ./.github/workflows/_test_tool_all.yml
     secrets: inherit
 
-  test_autoinit_prerequisite:
+  test_autoinit:
     name: AutoInit
-    uses: ./.github/workflows/reusable_test_prerequisite_autoinit.yml
+    uses: ./.github/workflows/_test_autoinit.yml
     secrets: inherit
 
-  run_tool_action:
-    name: Tool / Run
-    needs: test_tool_prerequisite
-    runs-on: ubuntu-latest
-    outputs:
-      testspace_space_id: ${{ steps.run-local-action.outputs.testspace_space_id }}
-    steps:
-
-        - name: Checkout Local Repo
-          id: checkout
-          uses: actions/checkout@v4
-
-        - name: Run Local Action
-          id: run-local-action
-          uses: ./
-          with:
-            repository: ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }}
-            template: ${{ vars.TEST_TEMPLATE_REPO_ORG }}/${{ vars.TEST_TEMPLATE_REPO_NAME }}
-            repository_deployment: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
-            token: ${{ secrets.TEST_TOKEN }}
-            testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
-            testspace_domain: ${{ vars.TEST_NEW_REPO_ORG }}
-
-  run_autoinit_action:
-    name: AutoInit / Run
-    needs: test_autoinit_prerequisite
-    runs-on: ubuntu-latest
-    outputs:
-      testspace_space_id: ${{ steps.output.outputs.testspace_space_id }}
-    steps:
-        # Dispatch an action and get the run ID and URL
-        - name: Start the AutoInit Workflow
-          uses: codex-/return-dispatch@v2
-          id: return_dispatch
-          with:
-            token: ${{ secrets.TEST_TOKEN }}
-            ref: main
-            repo: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
-            owner: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
-            workflow: auto_init.yml
-            workflow_inputs: '{ "repository_deployment": "${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}" }'
-        
-        # Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
-        - name: Waiting end of the AutoInit Workflow
-          uses: Codex-/await-remote-run@v1.12.2
-          with:
-            token: ${{ github.token }}
-            repo: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
-            owner: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
-            run_id: ${{ steps.return_dispatch.outputs.run_id }}
-
-        - name: Gets Workflow Output
-          id: output
-          run: |
-            line=$(gh run view ${{ steps.return_dispatch.outputs.run_id }} -R ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --json jobs --jq '.jobs[].steps[] | select( .name | contains("TestSpace")) | .name')
-            [[ $line =~ ([1-9]+) ]]
-            id=${BASH_REMATCH[1]}
-            echo "testspace_space_id=${id}" >> "$GITHUB_OUTPUT"
-          env:
-            GH_TOKEN: ${{ secrets.TEST_TOKEN }}
-
-  test_publishing_feature:
-    name: Publishing
-    needs: [test_tool_prerequisite,run_tool_action]
-    uses: ./.github/workflows/reusable_test_publishing.yml
-    with:
-      waited_uuid: ${{ needs.test_tool_prerequisite.outputs.uuid }}
-    secrets: inherit
-
-  test_tool_result:
-    name: Tool 
-    needs: [test_tool_prerequisite,run_tool_action]
-    uses: ./.github/workflows/reusable_test_result.yml
-    with:
-      testspace_id: ${{ needs.run_tool_action.outputs.testspace_space_id }}
-      waited_uuid: ${{needs.test_tool_prerequisite.outputs.uuid}}
-      repo_name: ${{ vars.TEST_NEW_REPO_NAME }}
-      repo_org: ${{ vars.TEST_NEW_REPO_ORG }}
-      test_name: test_tool
-    secrets: inherit
-    
-  test_autoinit_result:
-    name: AutoInit
-    needs: [test_autoinit_prerequisite,run_autoinit_action]
-    uses: ./.github/workflows/reusable_test_result.yml
-    with:
-      testspace_id: ${{ needs.run_autoinit_action.outputs.testspace_space_id }}
-      waited_uuid: ${{needs.test_autoinit_prerequisite.outputs.uuid}}
-      repo_name: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
-      repo_org: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
-      test_name: test_autoinit
+  test_no_testspace:
+    name: NoTestSpace
+    uses: ./.github/workflows/_test_no_testspace.yml
     secrets: inherit
 
   clean:
     if: always()
     name: Clean
-    needs: [test_tool_result,test_autoinit_result,test_publishing_feature]
+    needs: [test_tool,test_autoinit,test_no_testspace]
     runs-on: ubuntu-latest
     steps:
       - name: Clean Test Data
@@ -133,11 +45,12 @@ jobs:
           gh repo delete ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }} --yes || true
           gh repo delete ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }} --yes || true
           gh repo delete ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --yes || true
+          gh repo delete ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}/${{ vars.TEST_REPO_NO_TESTSPACE_NAME }} --yes || true
 
   report:
     if: always()
     name: Save Test Resut
-    needs: [test_tool_result,test_autoinit_result,test_publishing_feature]
+    needs: [test_tool,test_autoinit,test_no_testspace]
     runs-on: ubuntu-latest
     steps:
       # Need to checkout to give context to testspace cli

@@ -25,6 +25,7 @@ jobs:
         with:
             repository_deployment: ${{ github.event.inputs.repository_deployment }}
             token: ${{ secrets.TEST_TOKEN }}
+            testspace_link_enable: true
             testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
       
       - name: echo TestSpace ID ${{ steps.test.outputs.testspace_space_id }} # As requested by our test code
