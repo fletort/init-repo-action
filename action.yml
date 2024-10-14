@@ -22,10 +22,17 @@ inputs:
       - create a MR on the repository
       We recommend using a service account with the least permissions necessary.
       Also when generating a new PAT, select the least scopes necessary.
+  testspace_link_enable:
+    description: >
+      Indicates if the testspace link feature is enable. If set to `true` the
+      `testspace_token` attribut is *mandatory*. Default is `false`.
+    default: 'false'
   testspace_token:
     description: >
       Personal testspace token used to interact with the testspace API to create
-      the project.
+      the project. *Mandatory* is the testspace feature is enable with the help
+      of the `testspace_link_enable` attribut.
+    default:
   testspace_domain:
     description: >
       Testspace SubDomain
@@ -71,6 +78,7 @@ runs:
         deploy_repo: ${{ inputs.repository_deployment }}
         token: ${{ inputs.token }}
     - name: "TestSpace Project Creation"
+      if: ${{ inputs.testspace_link_enable == 'true' }}
       id: testspace_creation
       uses: fletort/testspace-create-action@v1
       with:
