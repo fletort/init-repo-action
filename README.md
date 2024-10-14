@@ -115,7 +115,7 @@ The token must have the following permissions:
    - To be able to add a publish key to the `repository_deployment`
 - 'Repository  Contents': To be able to Fetch the `repository` and commit to the `repository`
 - 'Repository  Secrets': Store secret inside the `repository`
-- 'Repository  Pull Requests': To be able to create the PRon the `repository` with the template resolution
+- 'Repository  Pull Requests': To be able to create the PR on the `repository` with the template resolution
 
 ## Code Quality
 
