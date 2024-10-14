@@ -116,6 +116,7 @@ The token must have the following permissions:
 - 'Repository  Contents': To be able to Fetch the `repository` and commit to the `repository`
 - 'Repository  Secrets': Store secret inside the `repository`
 - 'Repository  Pull Requests': To be able to create the PR on the `repository` with the template resolution
+- 'Repository Worflows': Needed, if you are using directory renaming feature to create the `.github` directory (from a template `$.github` directory)
 
 ## Code Quality
 
