@@ -1,0 +1,95 @@
+name: Test without template, without testspace
+on:
+  workflow_call:
+    secrets:
+      TEST_TOKEN:
+        required: true
+      TESTSPACE_TOKEN:
+        required: true
+
+env:
+  test_name: test_no_testspace
+  repo_org: ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}
+  repo_name: ${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}
+
+jobs:
+  prerequisite:
+    name: Prerequisite
+    runs-on: ubuntu-latest
+    steps:
+        - name: Clean Test Data
+          env:
+            GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          run: |
+            gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true
+
+        - name: Create repository
+          uses: f1lander/create-repository-action@v1.0.2
+          with:
+            name: '${{ env.repo_name }}'
+            org: '${{ env.repo_org }}'
+            access-token: '${{ secrets.TEST_TOKEN }}'
+
+  run_tool_action:
+    name: Run
+    needs: prerequisite
+    runs-on: ubuntu-latest
+    outputs:
+      testspace_space_id: ${{ steps.run-local-action.outputs.testspace_space_id }}
+    steps:
+
+        - name: Checkout Local Repo
+          id: checkout
+          uses: actions/checkout@v4
+
+        - name: Run Local Action Without Template, without TestSpace Link
+          id: run-local-action
+          uses: ./
+          with:
+            repository: ${{ env.repo_org }}/${{ env.repo_name }}
+            repository_deployment: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
+            token: ${{ secrets.TEST_TOKEN }}
+            testspace_link_enable: false
+
+  test_tool_result:
+    name: Check 
+    needs: [prerequisite,run_tool_action]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Local Repo
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Install bats
+        id: install-bats
+        run: ./test/install_bats.sh
+
+      - name: Test Waited Results
+        id: test-action-result
+        env:
+          REPO_NAME: ${{ env.repo_name }}
+          REPO_ORG: ${{ env.repo_org }}
+          GH_TOKEN: ${{ secrets.test_token }}
+          TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
+        run: |
+          ./test/bats/bin/bats --report-formatter junit test/${{ env.test_name }}.bats
+
+      - name: Keep Test Report
+        id: test-report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.test_name }}
+          path: report.xml
+          retention-days: 1
+  
+  clean:
+    if: always()
+    name: Clean
+    needs: [test_tool_result]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean Test Data
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true

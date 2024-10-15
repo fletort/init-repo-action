@@ -18,9 +18,10 @@ organization, where needed secrets can be available globally.
 - Create the new repository defined by `repository` from the specified `template` (if asked)
 - Checkout the new repository defined by `repository`
 - Manage ssh cnx to the repository specified by `repository_deployment` with the help of the
-[generate-ssh-deploy-repo-action](https://github.com/fletort/generate-ssh-deploy-repo-action) action.
+[generate-ssh-deploy-repo-action](https://github.com/fletort/generate-ssh-deploy-repo-action) action, if `repository_deployment` is defined.
 - Create the linked TestSpace Project with the help of the
 [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) action in the specified `testspace_domain`
+if asked with `testspace_link_enable` parameter.
 - Create a develop branch on the new repository
 - Define main and develop branch protection
 - Manage Dynamic Template Substitution with the help of the
@@ -50,6 +51,7 @@ when generating a new PAT, select the least scopes necessary.
     template: owner/my_template_repo
     repository_deployment: owner/repo_on_which_we_can_deploy
     token: ${{ secrets.PAT }}
+    testspace_link_enable: true
     testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
     testspace_domain: testspace_domain
 ```
@@ -62,6 +64,7 @@ You can also pin to a [specific release](https://github.com/fletort/init-repo-ac
   with:
     repository_deployment: owner/repo_on_which_we_can_deploy
     token: ${{ secrets.PAT }}
+    testspace_link_enable: true
     testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
 ```
 You can also pin to a [specific release](https://github.com/fletort/init-repo-action/releases) version in the format `@v1.x.x`
@@ -86,6 +89,7 @@ jobs:
         with:
           repository_deployment: owner/repo_on_which_we_can_deploy
           token: ${{ secrets.PAT }}
+          testspace_link_enable: true
           testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
 ```
 
@@ -101,9 +105,10 @@ All other inputs are **optional**.
 | ---- | ----------- | ------- |
 | `repository` | Repository to create and/or init. Indicate the repository name with owner. | `${{ github.repository }}` |
 | `template` | Template Repository to use to create the repository. Indicate the repository name with owner. If the repository is already created, indicates `no_init`  | `no_init` |
-| `repository_deployment` | Repository on which `repository` will be able to deploy to through ssh credentials. Indicate the repository name with owner. | **MANDATORY** |
+| `repository_deployment` | Repository on which `repository` will be able to deploy to through ssh credentials. Indicate the repository name with owner. If not defined (default value), the deployement feature is not initialized. | `` |
 | `token` | The token that action (and used actions) will use. See token. | **MANDATORY** |
-| `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY** |
+| `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable. | `false` |
+| `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY if testspace feature is enabled with `testspace_link_enable`** |
 | `testspace_domain` | Testspace SubDomain where the testspace project will be created | `${{ github.repository_owner }}` |
 | `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted | `true`|
 
@@ -138,6 +143,8 @@ For exemple the "tool" test suite contains the following tests:
 - The **Tool scenario** tests the role in ["a tool way"](#used-as-a-tool), i.e. targeting a remote repository that is created by the role itself.
 - The **AutoInit scenario** tests the role in ["Dynamic Template way"](#used-from-a-repo-that-init-itself), i.e. a repository that is using the role on itself.
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
+- The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
+- The **No Deployment scenario** tests the role when Deployment feature is disabled
 
 ## License
 

@@ -12,7 +12,10 @@ inputs:
     description: 'Template to use to init the repository (use only if repo is not already created)'
     default: no_init
   repository_deployment:
-    description: 'Repo on which we want to make deployement. For example owner/my_published_repo'
+    description: > 
+      Repo on which we want to make deployement. For example owner/my_published_repo.
+      If not specified, the deployment feature is not initialized.
+    default:
   token:
     description: >
       Personal access token (PAT) used to:
@@ -22,10 +25,17 @@ inputs:
       - create a MR on the repository
       We recommend using a service account with the least permissions necessary.
       Also when generating a new PAT, select the least scopes necessary.
+  testspace_link_enable:
+    description: >
+      Indicates if the testspace link feature is enable. If set to `true` the
+      `testspace_token` attribut is *mandatory*. Default is `false`.
+    default: 'false'
   testspace_token:
     description: >
       Personal testspace token used to interact with the testspace API to create
-      the project.
+      the project. *Mandatory* is the testspace feature is enable with the help
+      of the `testspace_link_enable` attribut.
+    default:
   testspace_domain:
     description: >
       Testspace SubDomain
@@ -64,6 +74,7 @@ runs:
         path: ${{ inputs.repository }}
         token: ${{ inputs.token }}
     - name: "Manage connection to internal global deployement repo: ${{ inputs.repository_deployment }}"
+      if: ${{ inputs.repository_deployment != '' }}
       id: report_repo_cnx
       uses: fletort/generate-ssh-deploy-repo-action@v1
       with:
@@ -71,6 +82,7 @@ runs:
         deploy_repo: ${{ inputs.repository_deployment }}
         token: ${{ inputs.token }}
     - name: "TestSpace Project Creation"
+      if: ${{ inputs.testspace_link_enable == 'true' }}
       id: testspace_creation
       uses: fletort/testspace-create-action@v1
       with:
@@ -112,7 +124,7 @@ runs:
             /repos/${{ github.repository }}/actions/runs/${{ github.run_id }} \
             --jq .path)
           rm "${{ inputs.repository }}/$workflowPath"
-        else
+        elif [ -d "${{ inputs.repository }}/.github/workflows/" ]; then
           grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
         fi
 
