@@ -69,6 +69,8 @@ jobs:
         env:
           REPO_NAME: ${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}
           REPO_ORG: ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}
+          GH_TOKEN: ${{ secrets.test_token }}
+          TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
         run: |
           ./test/bats/bin/bats --report-formatter junit test/${{ env.test_name }}.bats
 
