@@ -9,25 +9,25 @@ on:
 
 env:
   test_name: test_no_testspace
+  repo_org: ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}
+  repo_name: ${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}
 
 jobs:
   prerequisite:
     name: Prerequisite
     runs-on: ubuntu-latest
-    outputs:
-      uuid: ${{ steps.create_template.outputs.uuid }}
     steps:
         - name: Clean Test Data
           env:
             GH_TOKEN: ${{ secrets.TEST_TOKEN }}
           run: |
-            gh repo delete ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}/${{ vars.TEST_REPO_NO_TESTSPACE_NAME }} --yes || true
+            gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true
 
         - name: Create repository
           uses: f1lander/create-repository-action@v1.0.2
           with:
-            name: '${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}'
-            org: '${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}'
+            name: '${{ env.repo_name }}'
+            org: '${{ env.repo_org }}'
             access-token: '${{ secrets.TEST_TOKEN }}'
 
   run_tool_action:
@@ -46,7 +46,7 @@ jobs:
           id: run-local-action
           uses: ./
           with:
-            repository: ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}/${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}
+            repository: ${{ env.repo_org }}/${{ env.repo_name }}
             repository_deployment: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
             token: ${{ secrets.TEST_TOKEN }}
             testspace_link_enable: false
@@ -67,8 +67,8 @@ jobs:
       - name: Test Waited Results
         id: test-action-result
         env:
-          REPO_NAME: ${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}
-          REPO_ORG: ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}
+          REPO_NAME: ${{ env.repo_name }}
+          REPO_ORG: ${{ env.repo_org }}
           GH_TOKEN: ${{ secrets.test_token }}
           TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
         run: |
@@ -81,3 +81,15 @@ jobs:
           name: ${{ env.test_name }}
           path: report.xml
           retention-days: 1
+  
+  clean:
+    if: always()
+    name: Clean
+    needs: [test_tool_result]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean Test Data
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true

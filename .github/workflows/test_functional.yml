@@ -40,23 +40,6 @@ jobs:
     uses: ./.github/workflows/_test_no_deployment.yml
     secrets: inherit
 
-  clean:
-    if: always()
-    name: Clean
-    needs: [test_tool,test_autoinit,test_no_testspace,test_no_deployment]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clean Test Data
-        env:
-          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
-        run: |
-          gh repo delete ${{ vars.TEST_TEMPLATE_REPO_ORG}}/${{ vars.TEST_TEMPLATE_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}/${{ vars.TEST_REPO_NO_TESTSPACE_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_REPO_NO_DEPLOYMENT_ORG }}/${{ vars.TEST_REPO_NO_DEPLOYMENT_NAME }} --yes || true
-
   report:
     if: always()
     name: Save Test Resut
@@ -77,7 +60,6 @@ jobs:
       - name: Testspace push test content
         run: |
           output=$(testspace "[Integ Tests]./**/report.xml")
-          # echo "::notice::$toto"
           REGEX="(https://[a-z0-9]+.testspace.com/spaces/[0-9]+/result_sets/[0-9]+)"
           [[ $output =~ $REGEX ]]
           result_set_link="${BASH_REMATCH[1]}"

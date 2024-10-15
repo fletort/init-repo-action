@@ -79,3 +79,15 @@ jobs:
           name: ${{ env.test_name }}
           path: report.xml
           retention-days: 1
+
+  clean:
+    if: always()
+    name: Clean
+    needs: [test_tool_result]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean Test Data
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true

@@ -90,3 +90,15 @@ jobs:
       repo_org: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
       test_name: test_autoinit
     secrets: inherit
+
+  clean:
+    if: always()
+    name: Clean
+    needs: [test_autoinit_result]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clean Test Data
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          gh repo delete ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --yes || true
