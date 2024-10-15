@@ -143,6 +143,8 @@ For exemple the "tool" test suite contains the following tests:
 - The **Tool scenario** tests the role in ["a tool way"](#used-as-a-tool), i.e. targeting a remote repository that is created by the role itself.
 - The **AutoInit scenario** tests the role in ["Dynamic Template way"](#used-from-a-repo-that-init-itself), i.e. a repository that is using the role on itself.
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
+- The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
+- The **No Deployment scenario** tests the role when Deployment feature is disabled
 
 ## License
 
