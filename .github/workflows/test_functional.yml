@@ -3,6 +3,10 @@ name: 'Functional Tests'
 on:
   push:
 
+concurrency: # As used repo name are unique, only one functional test can run in same time
+  group: functional_test
+  cancel-in-progress: false
+
 # Needed Global vars (to can be used in local nested reusable workflow)
 # - TEST_TEMPLATE_REPO_NAME
 # - TEST_TEMPLATE_REPO_ORG
