@@ -1,4 +1,4 @@
-name: Test without template, without testspace
+name: Test without template, without deployment
 on:
   workflow_call:
     secrets:
@@ -8,48 +8,46 @@ on:
         required: true
 
 env:
-  test_name: test_no_testspace
+  test_name: test_no_deployment
+  repo_org: ${{ vars.TEST_REPO_NO_DEPLOYMENT_ORG }}
+  repo_name: ${{ vars.TEST_REPO_NO_DEPLOYMENT_NAME }}
 
 jobs:
   prerequisite:
     name: Prerequisite
     runs-on: ubuntu-latest
-    outputs:
-      uuid: ${{ steps.create_template.outputs.uuid }}
     steps:
         - name: Clean Test Data
           env:
             GH_TOKEN: ${{ secrets.TEST_TOKEN }}
           run: |
-            gh repo delete ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}/${{ vars.TEST_REPO_NO_TESTSPACE_NAME }} --yes || true
+            gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true
 
         - name: Create repository
           uses: f1lander/create-repository-action@v1.0.2
           with:
-            name: '${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}'
-            org: '${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}'
+            name: '${{ env.repo_name }}'
+            org: '${{ env.repo_org }}'
             access-token: '${{ secrets.TEST_TOKEN }}'
 
   run_tool_action:
     name: Run
     needs: prerequisite
     runs-on: ubuntu-latest
-    outputs:
-      testspace_space_id: ${{ steps.run-local-action.outputs.testspace_space_id }}
     steps:
-
         - name: Checkout Local Repo
           id: checkout
           uses: actions/checkout@v4
 
-        - name: Run Local Action Without Template, without TestSpace Link
+        - name: Run Local Action Without Template, without Deployment Repo
           id: run-local-action
           uses: ./
           with:
-            repository: ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}/${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}
-            repository_deployment: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
+            repository: ${{ env.repo_org }}/${{ env.repo_name }}
             token: ${{ secrets.TEST_TOKEN }}
-            testspace_link_enable: false
+            testspace_link_enable: true
+            testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
+            testspace_domain: ${{ env.repo_org }}
 
   test_tool_result:
     name: Check 
@@ -67,8 +65,8 @@ jobs:
       - name: Test Waited Results
         id: test-action-result
         env:
-          REPO_NAME: ${{ vars.TEST_REPO_NO_TESTSPACE_NAME }}
-          REPO_ORG: ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}
+          REPO_NAME: ${{ env.repo_name }}
+          REPO_ORG: ${{ env.repo_org }}
           GH_TOKEN: ${{ secrets.test_token }}
           TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
         run: |

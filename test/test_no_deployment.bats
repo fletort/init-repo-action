@@ -17,20 +17,20 @@ setup() {
     load 'test_helper/bats-file/load'
 }
 
-@test "A new secret is created to store the ssh private key" {
+@test "A new secret is not created to store the ssh private key" {
   run gh secret list --repo ${REPO_ORG}/${REPO_NAME} --json name --jq '.[].name'
-  assert_line --partial 'PUBLISHING_KEY'
+  refute_output --partial 'PUBLISHING_KEY'
 }
 
-#@test "Deployment key is defined" {
+#@test "No Deployment key is defined" {
 #  run gh repo deploy-key list --repo ${PUBLISHED_REPO_ORG}/${PUBLISHED_REPO_NAME} --json title --jq '.[].title'
 #  assert_line --partial '${REPO_ORG}/${REPO_NAME}'
 #}
 
-@test "TestSpace Project is not created" {
+@test "TestSpace Project is created" {
   url_api="https://${REPO_ORG}.testspace.com/api/projects"
   run curl --no-progress-meter -H "Authorization: Token ${TESTSPACE_TOKEN}" "$url_api"
-  refute_output --partial "${REPO_ORG}/${REPO_NAME}"
+  assert_output --partial "${REPO_ORG}/${REPO_NAME}"
 }
 
 

@@ -12,7 +12,10 @@ inputs:
     description: 'Template to use to init the repository (use only if repo is not already created)'
     default: no_init
   repository_deployment:
-    description: 'Repo on which we want to make deployement. For example owner/my_published_repo'
+    description: > 
+      Repo on which we want to make deployement. For example owner/my_published_repo.
+      If not specified, the deployment feature is not initialized.
+    default:
   token:
     description: >
       Personal access token (PAT) used to:
@@ -71,6 +74,7 @@ runs:
         path: ${{ inputs.repository }}
         token: ${{ inputs.token }}
     - name: "Manage connection to internal global deployement repo: ${{ inputs.repository_deployment }}"
+      if: ${{ inputs.repository_deployment != '' }}
       id: report_repo_cnx
       uses: fletort/generate-ssh-deploy-repo-action@v1
       with:

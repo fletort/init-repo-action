@@ -31,10 +31,15 @@ jobs:
     uses: ./.github/workflows/_test_no_testspace.yml
     secrets: inherit
 
+  test_no_deployment:
+    name: NoDeployment
+    uses: ./.github/workflows/_test_no_deployment.yml
+    secrets: inherit
+
   clean:
     if: always()
     name: Clean
-    needs: [test_tool,test_autoinit,test_no_testspace]
+    needs: [test_tool,test_autoinit,test_no_testspace,test_no_deployment]
     runs-on: ubuntu-latest
     steps:
       - name: Clean Test Data
@@ -46,11 +51,12 @@ jobs:
           gh repo delete ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }} --yes || true
           gh repo delete ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --yes || true
           gh repo delete ${{ vars.TEST_REPO_NO_TESTSPACE_ORG }}/${{ vars.TEST_REPO_NO_TESTSPACE_NAME }} --yes || true
+          gh repo delete ${{ vars.TEST_REPO_NO_DEPLOYMENT_ORG }}/${{ vars.TEST_REPO_NO_DEPLOYMENT_NAME }} --yes || true
 
   report:
     if: always()
     name: Save Test Resut
-    needs: [test_tool,test_autoinit,test_no_testspace]
+    needs: [test_tool,test_autoinit,test_no_testspace,test_no_deployment]
     runs-on: ubuntu-latest
     steps:
       # Need to checkout to give context to testspace cli
