@@ -18,7 +18,7 @@ organization, where needed secrets can be available globally.
 - Create the new repository defined by `repository` from the specified `template` (if asked)
 - Checkout the new repository defined by `repository`
 - Manage ssh cnx to the repository specified by `repository_deployment` with the help of the
-[generate-ssh-deploy-repo-action](https://github.com/fletort/generate-ssh-deploy-repo-action) action.
+[generate-ssh-deploy-repo-action](https://github.com/fletort/generate-ssh-deploy-repo-action) action, if `repository_deployment` is defined.
 - Create the linked TestSpace Project with the help of the
 [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) action in the specified `testspace_domain`
 if asked with `testspace_link_enable` parameter.
@@ -105,7 +105,7 @@ All other inputs are **optional**.
 | ---- | ----------- | ------- |
 | `repository` | Repository to create and/or init. Indicate the repository name with owner. | `${{ github.repository }}` |
 | `template` | Template Repository to use to create the repository. Indicate the repository name with owner. If the repository is already created, indicates `no_init`  | `no_init` |
-| `repository_deployment` | Repository on which `repository` will be able to deploy to through ssh credentials. Indicate the repository name with owner. | **MANDATORY** |
+| `repository_deployment` | Repository on which `repository` will be able to deploy to through ssh credentials. Indicate the repository name with owner. If not defined (default value), the deployement feature is not initialized. | `` |
 | `token` | The token that action (and used actions) will use. See token. | **MANDATORY** |
 | `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable. | `false` |
 | `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY if testspace feature is enabled with `testspace_link_enable`** |
