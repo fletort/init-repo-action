@@ -105,10 +105,11 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
     - name: "Manage Dynamic Template"
       id: template
-      env:
-        REPOSITORY_PATH: ${{ inputs.repository }}
-        TESTSPACE_SPACE_ID: ${{ steps.testspace_creation.outputs.id }}
-        CI_REPORT_REPO_PATH: ${{ inputs.repository_deployment }}
+      with:
+        variables: |
+          REPOSITORY_PATH=${{ inputs.repository }}
+          TESTSPACE_SPACE_ID=${{ steps.testspace_creation.outputs.id }}
+          DEPLOYMENT_REPO_PATH=${{ inputs.repository_deployment }}
       uses: fletort/jinja2-template-action@v1
 
     - name: Remove Init Workflow on Dynamic Template
