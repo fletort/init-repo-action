@@ -25,7 +25,7 @@ if asked with `testspace_link_enable` parameter.
 - Create a develop branch on the new repository
 - Define main and develop branch protection
 - Manage Dynamic Template Substitution with the help of the
-[fletort/template-common-js](https://github.com/fletort/template-common-js) action.
+[fletort/jinja2-template-action](https://github.com/fletort/jinja2-template-action) action.
 - Remove AutoInit Workflow (this feature can be disabled with the `delete-workflow` option):
   - on a Dynamic Template (repo that init itself), the current workflow file (calling the current action) is deleted
   - on a tool behaviour (repo targeted is not the repo calling the action), workflow contening a call to the current action are deleted
@@ -69,7 +69,7 @@ You can also pin to a [specific release](https://github.com/fletort/init-repo-ac
 ```
 You can also pin to a [specific release](https://github.com/fletort/init-repo-action/releases) version in the format `@v1.x.x`
 
-To have a dynamic template feature like you can call this action on the `create` event:
+To have a _dynamic template feature_ you can call this action on the `create` event:
 ```yaml
 name: Init Repository and Resolve Dynamic Template
 on:
@@ -122,6 +122,18 @@ The token must have the following permissions:
 - 'Repository  Secrets': Store secret inside the `repository`
 - 'Repository  Pull Requests': To be able to create the PR on the `repository` with the template resolution
 - 'Repository Worflows': Needed, if you are using directory renaming feature to create the `.github` directory (from a template `$.github` directory)
+
+## Template Specific Content
+
+As this action used the [jinja2-template-action](https://github.com/fletort/jinja2-template-action), your template
+can include jinja2 syntax. [See official Jinja2 Template Designer Documentation](https://jinja.palletsprojects.com/en/3.0.x/templates/#).
+
+Specific Variable are injected, and can be used in your template :
+| Name | Description |
+| ---- | ----------- |
+| REPOSITORY_PATH | Repository that is initalized (with the owner). It is the value of the `repository` input. |
+| TESTSPACE_SPACE_ID | ID of the created Testspace Space. This is the output of the [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) |
+| DEPLOYMENT_REPO_PATH | Repository on which deployment is possible (with the owner). It is the value of the `repository_deployment` input. |
 
 ## Code Quality
 
