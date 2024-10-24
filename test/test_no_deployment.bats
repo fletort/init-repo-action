@@ -17,6 +17,13 @@ setup() {
     load 'test_helper/bats-file/load'
 }
 
+@test "The specified repository is created from the specified template" {
+  git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  assert_file_exist ./${REPO_NAME}/${TEST_UUID_FILE}
+  content=$(cat ./${REPO_NAME}/${TEST_UUID_FILE})
+  assert_equal $content ${WAITED_UUID}
+}
+
 @test "A new secret is not created to store the ssh private key" {
   run gh secret list --repo ${REPO_ORG}/${REPO_NAME} --json name --jq '.[].name'
   refute_output --partial 'PUBLISHING_KEY'
@@ -31,6 +38,14 @@ setup() {
   url_api="https://${REPO_ORG}.testspace.com/api/projects"
   run curl --no-progress-meter -H "Authorization: Token ${TESTSPACE_TOKEN}" "$url_api"
   assert_output --partial "${REPO_ORG}/${REPO_NAME}"
+}
+
+@test "Template Resolution keeps the original template file" {
+  cd ${REPO_NAME}
+  git fetch
+  git switch template_resolution
+  assert_file_exist ./README.md.j2
+  cd ..
 }
 
 

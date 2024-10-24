@@ -91,6 +91,15 @@ setup() {
   cd ..
 }
 
+@test "Template Resolution use data file" {
+  cd ${REPO_NAME}
+  git fetch
+  git switch template_resolution
+  assert_file_exist ./README.md
+  assert_file_contains ./README.md "FromFile: ValueFromFile"
+  cd ..
+}
+
 @test "Workflow File is deleted" {
   cd ${REPO_NAME}
   git fetch

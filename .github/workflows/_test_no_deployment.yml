@@ -48,6 +48,7 @@ jobs:
             testspace_link_enable: true
             testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
             testspace_domain: ${{ env.repo_org }}
+            j2_keep_template: true
 
   test_tool_result:
     name: Check 
@@ -69,6 +70,8 @@ jobs:
           REPO_ORG: ${{ env.repo_org }}
           GH_TOKEN: ${{ secrets.test_token }}
           TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
+          TEST_UUID_FILE: ${{ vars.TEST_UUID_FILENAME }}
+          WAITED_UUID: ${{ inputs.waited_uuid }}
         run: |
           ./test/bats/bin/bats --report-formatter junit test/${{ env.test_name }}.bats
 

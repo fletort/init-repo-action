@@ -151,12 +151,15 @@ For exemple the "tool" test suite contains the following tests:
 
 ![alt](./test/img/testspace_tool_scenary.png)
 
-
 - The **Tool scenario** tests the role in ["a tool way"](#used-as-a-tool), i.e. targeting a remote repository that is created by the role itself.
+In this case, we are also testing that we are able to define variable from data file on the jinja2 sub-action
+(test the link between this actions inputs and the sub-action)
 - The **AutoInit scenario** tests the role in ["Dynamic Template way"](#used-from-a-repo-that-init-itself), i.e. a repository that is using the role on itself.
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
 - The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
 - The **No Deployment scenario** tests the role when Deployment feature is disabled
+In this case, we are also testing that we are able to ask to jinja2 sub-action to keep original template file.
+(test the link between this actions inputs and the sub-action)
 
 ## License
 
