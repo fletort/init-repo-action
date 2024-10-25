@@ -25,7 +25,7 @@ if asked with `testspace_link_enable` parameter.
 - Create a develop branch on the new repository
 - Define main and develop branch protection
 - Manage Dynamic Template Substitution with the help of the
-[fletort/template-common-js](https://github.com/fletort/template-common-js) action.
+[fletort/jinja2-template-action] action.
 - Remove AutoInit Workflow (this feature can be disabled with the `delete-workflow` option):
   - on a Dynamic Template (repo that init itself), the current workflow file (calling the current action) is deleted
   - on a tool behaviour (repo targeted is not the repo calling the action), workflow contening a call to the current action are deleted
@@ -69,7 +69,7 @@ You can also pin to a [specific release](https://github.com/fletort/init-repo-ac
 ```
 You can also pin to a [specific release](https://github.com/fletort/init-repo-action/releases) version in the format `@v1.x.x`
 
-To have a dynamic template feature like you can call this action on the `create` event:
+To have a _dynamic template feature_ you can call this action on the `create` event:
 ```yaml
 name: Init Repository and Resolve Dynamic Template
 on:
@@ -111,6 +111,9 @@ All other inputs are **optional**.
 | `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY if testspace feature is enabled with `testspace_link_enable`** |
 | `testspace_domain` | Testspace SubDomain where the testspace project will be created | `${{ github.repository_owner }}` |
 | `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted | `true`|
+| `j2_keep_template` | Put to `true` to keep original template file. See keep_template input of [fletort/jinja2-template-action]. | `false` |
+| `j2_data_file` |  Source file contening inputs variable for the jinja template. See data_file input of [fletort/jinja2-template-action]. | `''` |
+| `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detction is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action].| `automatic` |
 
 #### token
 
@@ -123,10 +126,22 @@ The token must have the following permissions:
 - 'Repository  Pull Requests': To be able to create the PR on the `repository` with the template resolution
 - 'Repository Worflows': Needed, if you are using directory renaming feature to create the `.github` directory (from a template `$.github` directory)
 
+## Template Specific Content
+
+As this action used the [fletort/jinja2-template-action], your template
+can include jinja2 syntax. [See official Jinja2 Template Designer Documentation](https://jinja.palletsprojects.com/en/3.0.x/templates/#).
+
+Specific Variable are injected, and can be used in your template :
+| Name | Description |
+| ---- | ----------- |
+| REPOSITORY_PATH | Repository that is initalized (with the owner). It is the value of the `repository` input. |
+| TESTSPACE_SPACE_ID | ID of the created Testspace Space. This is the output of the [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) |
+| DEPLOYMENT_REPO_PATH | Repository on which deployment is possible (with the owner). It is the value of the `repository_deployment` input. |
+
 ## Code Quality
 
 All unit/functional test executed on each branch/PR are listed/described on
-[ this testspace space](https://fletort.testspace.com/projects/68169/spaces).
+[this testspace space](https://fletort.testspace.com/projects/68169/spaces).
 
 2 functionals (integration) testsuites are executed on github pipelines
 ![alt](./test/img/pipeline.png)
@@ -139,9 +154,12 @@ For exemple the "tool" test suite contains the following tests:
 
 ![alt](./test/img/testspace_tool_scenary.png)
 
-
 - The **Tool scenario** tests the role in ["a tool way"](#used-as-a-tool), i.e. targeting a remote repository that is created by the role itself.
+In this case, we are also testing that we are able to define variable from data file on the jinja2 sub-action
+(test the link between this actions inputs and the sub-action)
 - The **AutoInit scenario** tests the role in ["Dynamic Template way"](#used-from-a-repo-that-init-itself), i.e. a repository that is using the role on itself.
+In this case, we are also testing that we are able to ask to jinja2 sub-action to keep original template file.
+(test the link between this actions inputs and the sub-action)
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
 - The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
 - The **No Deployment scenario** tests the role when Deployment feature is disabled
@@ -151,3 +169,4 @@ For exemple the "tool" test suite contains the following tests:
 The scripts and documentation in this project are released under the
 [MIT License](LICENSE)
 
+[fletort/jinja2-template-action]: (https://github.com/fletort/jinja2-template-action)

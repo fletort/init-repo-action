@@ -27,6 +27,7 @@ jobs:
             token: ${{ secrets.TEST_TOKEN }}
             testspace_link_enable: true
             testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
+            j2_keep_template: true
       
       - name: echo TestSpace ID ${{ steps.test.outputs.testspace_space_id }} # As requested by our test code
         run: echo ${{ steps.test.outputs.testspace_space_id }}
