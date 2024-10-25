@@ -33,4 +33,14 @@ setup() {
   assert_output --partial "${REPO_ORG}/${REPO_NAME}"
 }
 
+@test "Template Resolution without deployement information" {
+  git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  cd ${REPO_NAME}
+  git fetch
+  git switch template_resolution
+  assert_file_exist ./README.md
+  assert_file_contains ./README.md "CIReportRepoPath:[[:space:]]\+$"
+  cd ..
+}
+
 
