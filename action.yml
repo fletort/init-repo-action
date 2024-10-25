@@ -134,6 +134,7 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
       run: |
         if [[ "${{ github.repository }}" == "${{ inputs.repository }}" ]]; then
+        echo "Remove current workflow"
           workflowPath=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
@@ -141,7 +142,8 @@ runs:
             --jq .path)
           rm "${{ inputs.repository }}/$workflowPath"
         elif [ -d "${{ inputs.repository }}/.github/workflows/" ]; then
-          grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
+          echo "Remove all workflow calling init-repo-action"
+          { grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' || true ; } | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
         fi
 
     - name: Rename Specific Directories

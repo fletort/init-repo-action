@@ -17,9 +17,11 @@ setup() {
     load 'test_helper/bats-file/load'
 }
 
-# bats file_tags=common
+# bats file_tags=test_from_template
 @test "The specified repository is created from the specified template" {
-  git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   assert_file_exist ./${REPO_NAME}/${TEST_UUID_FILE}
   content=$(cat ./${REPO_NAME}/${TEST_UUID_FILE})
   assert_equal $content ${WAITED_UUID}
@@ -46,6 +48,9 @@ setup() {
 
 # bats file_tags=common
 @test "develop branch is created on the repository" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   existed_in_remote=$(git ls-remote --heads origin develop)
   [[ ! -z ${existed_in_remote} ]]
@@ -88,6 +93,9 @@ setup() {
 
 # bats file_tags=common
 @test "Template Resolution is done on a dedicated branch" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution
@@ -100,6 +108,9 @@ setup() {
 
 # bats file_tags=test_data_file
 @test "Template Resolution use data file" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution
@@ -110,6 +121,9 @@ setup() {
 
 # bats file_tags=test_no_data_file
 @test "Template Resolution without data file" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution
@@ -120,6 +134,9 @@ setup() {
 
 # bats file_tags=common
 @test "Workflow File is deleted" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution
@@ -129,6 +146,9 @@ setup() {
 
 # bats file_tags=common
 @test "Directories are renamed" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution
@@ -143,6 +163,9 @@ setup() {
 
 # bats file_tags=test_keep_template
 @test "Template Resolution keeps the original template file" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution
@@ -152,6 +175,9 @@ setup() {
 
 # bats file_tags=test_not_keep_template
 @test "Template Resolution does not keep the original template file" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
+  fi
   cd ${REPO_NAME}
   git fetch
   git switch template_resolution

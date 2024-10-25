@@ -15,20 +15,11 @@ env:
 jobs:
   prerequisite:
     name: Prerequisite
-    runs-on: ubuntu-latest
-    steps:
-        - name: Clean Test Data
-          env:
-            GH_TOKEN: ${{ secrets.TEST_TOKEN }}
-          run: |
-            gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true
-
-        - name: Create repository
-          uses: f1lander/create-repository-action@v1.0.2
-          with:
-            name: '${{ env.repo_name }}'
-            org: '${{ env.repo_org }}'
-            access-token: '${{ secrets.TEST_TOKEN }}'
+    uses: ./.github/workflows/reusable_create_repo_to_init.yml
+    with:
+      repo_name: ${{ vars.TEST_REPO_NO_DEPLOYMENT_NAME }}
+      repo_org: ${{ vars.TEST_REPO_NO_DEPLOYMENT_ORG }}
+    secrets: inherit
 
   run_tool_action:
     name: Run

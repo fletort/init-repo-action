@@ -131,12 +131,12 @@ The token must have the following permissions:
 As this action used the [fletort/jinja2-template-action], your template
 can include jinja2 syntax. [See official Jinja2 Template Designer Documentation](https://jinja.palletsprojects.com/en/3.0.x/templates/#).
 
-Specific Variable are injected, and can be used in your template :
+Specific Variable are injected by this action, and can be used in your template :
 | Name | Description |
 | ---- | ----------- |
 | REPOSITORY_PATH | Repository that is initalized (with the owner). It is the value of the `repository` input. |
-| TESTSPACE_SPACE_ID | ID of the created Testspace Space. This is the output of the [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) |
-| DEPLOYMENT_REPO_PATH | Repository on which deployment is possible (with the owner). It is the value of the `repository_deployment` input. |
+| TESTSPACE_SPACE_ID | ID of the created Testspace Space. This is the output of the [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action). If not testspace space is initialized (`testspace_link_enable` to false), the value of TESTSPACE_SPACE_ID is empty. |
+| DEPLOYMENT_REPO_PATH | Repository on which deployment is possible (with the owner). It is the value of the `repository_deployment` input. If no deployment feature is not initialized, the value of DEPLOYMENT_REPO_PATH is empty. |
 
 ## Code Quality
 
