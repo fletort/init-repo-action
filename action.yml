@@ -42,6 +42,18 @@ inputs:
     default: ${{ github.repository_owner }}
   delete_workflow:
     default: true
+  j2_keep_template:
+    description:
+      'Put to `true` to keep original template jinja2 file.'
+    default: false
+  j2_data_file:
+    description:
+      'Source file contening inputs variable for the jinja2 templates.'
+    default: ''
+  j2_data_format:
+    description:
+      'Format of the `j2_data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the extension then on the content.'
+    default: automatic
 
 outputs:
   testspace_space_id:
@@ -105,10 +117,14 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
     - name: "Manage Dynamic Template"
       id: template
-      env:
-        REPOSITORY_PATH: ${{ inputs.repository }}
-        TESTSPACE_SPACE_ID: ${{ steps.testspace_creation.outputs.id }}
-        CI_REPORT_REPO_PATH: ${{ inputs.repository_deployment }}
+      with:
+        variables: |
+          REPOSITORY_PATH=${{ inputs.repository }}
+          TESTSPACE_SPACE_ID=${{ steps.testspace_creation.outputs.id }}
+          DEPLOYMENT_REPO_PATH=${{ inputs.repository_deployment }}
+        keep_template: ${{ inputs.j2_keep_template }}
+        data_file: ${{ inputs.j2_data_file }}
+        data_format: ${{ inputs.j2_data_format }}
       uses: fletort/jinja2-template-action@v1
 
     - name: Remove Init Workflow on Dynamic Template
@@ -118,6 +134,7 @@ runs:
         GH_TOKEN: ${{ inputs.token }}
       run: |
         if [[ "${{ github.repository }}" == "${{ inputs.repository }}" ]]; then
+        echo "Remove current workflow"
           workflowPath=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
@@ -125,7 +142,8 @@ runs:
             --jq .path)
           rm "${{ inputs.repository }}/$workflowPath"
         elif [ -d "${{ inputs.repository }}/.github/workflows/" ]; then
-          grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
+          echo "Remove all workflow calling init-repo-action"
+          { grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' || true ; } | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
         fi
 
     - name: Rename Specific Directories

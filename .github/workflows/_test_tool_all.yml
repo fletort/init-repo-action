@@ -65,6 +65,8 @@ jobs:
             testspace_link_enable: true
             testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
             testspace_domain: ${{ vars.TEST_NEW_REPO_ORG }}
+            j2_data_file: ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }}/data.json
+            j2_data_format: json
 
   test_tool_result:
     name: Check 
@@ -76,6 +78,7 @@ jobs:
       repo_name: ${{ vars.TEST_NEW_REPO_NAME }}
       repo_org: ${{ vars.TEST_NEW_REPO_ORG }}
       test_name: test_tool
+      bats_arg: "--filter-tags test_data_file --filter-tags test_not_keep_template --filter-tags test_from_template"
     secrets: inherit
 
   test_publishing_feature:
