@@ -57,9 +57,23 @@ setup() {
   cd ..
 }
 
-# bats file_tags=common
-@test "main branch is correctly protected" {
+# bats file_tags=default_correction
+@test "default branch protection is used" {
   run -0 gh api "repos/${REPO_ORG}/${REPO_NAME}/branches/main/protection" --method GET
+  dismiss_stale_reviews=$(jq -r .required_pull_request_reviews.dismiss_stale_reviews <<< $output)
+  assert_equal "$dismiss_stale_reviews" "false"
+  require_code_owner_reviews=$(jq -r .required_pull_request_reviews.require_code_owner_reviews <<< $output)
+  assert_equal "$require_code_owner_reviews" "false"
+  required_approving_review_count=$(jq -r .required_pull_request_reviews.required_approving_review_count <<< $output)
+  assert_equal "$required_approving_review_count" "0"
+  required_status_checks_strict=$(jq -r .required_status_checks.strict <<< $output)
+  assert_equal "$required_status_checks_strict" "false"
+  required_conversation_resolution=$(jq -r .required_conversation_resolution.enabled <<< $output)
+  assert_equal "$required_conversation_resolution" "true"
+  enforce_admins=$(jq -r .enforce_admins.enabled <<< $output)
+  assert_equal "$enforce_admins" "true"
+
+  run -0 gh api "repos/${REPO_ORG}/${REPO_NAME}/branches/develop/protection" --method GET
   dismiss_stale_reviews=$(jq -r .required_pull_request_reviews.dismiss_stale_reviews <<< $output)
   assert_equal "$dismiss_stale_reviews" "false"
   require_code_owner_reviews=$(jq -r .required_pull_request_reviews.require_code_owner_reviews <<< $output)
@@ -74,21 +88,28 @@ setup() {
   assert_equal "$enforce_admins" "true"
 }
 
-# bats file_tags=common
-@test "develop branch is correctly protected" {
+# bats file_tags=custom_correction
+@test "custom branch protection is used" {
+
+  is_main_protected=$(gh api "repos/${REPO_ORG}/${REPO_NAME}/branches" --method GET --jq '.[] | select(.name == "main") | .protected')
+	assert_equal "$is_main_protected" "false"
+
   run -0 gh api "repos/${REPO_ORG}/${REPO_NAME}/branches/develop/protection" --method GET
   dismiss_stale_reviews=$(jq -r .required_pull_request_reviews.dismiss_stale_reviews <<< $output)
   assert_equal "$dismiss_stale_reviews" "false"
   require_code_owner_reviews=$(jq -r .required_pull_request_reviews.require_code_owner_reviews <<< $output)
   assert_equal "$require_code_owner_reviews" "false"
   required_approving_review_count=$(jq -r .required_pull_request_reviews.required_approving_review_count <<< $output)
-  assert_equal "$required_approving_review_count" "0"
+  assert_equal "$required_approving_review_count" "1"
   required_status_checks_strict=$(jq -r .required_status_checks.strict <<< $output)
   assert_equal "$required_status_checks_strict" "false"
   required_conversation_resolution=$(jq -r .required_conversation_resolution.enabled <<< $output)
   assert_equal "$required_conversation_resolution" "true"
   enforce_admins=$(jq -r .enforce_admins.enabled <<< $output)
   assert_equal "$enforce_admins" "true"
+  
+  is_anotherbranch_protected=$(gh api "repos/${REPO_ORG}/${REPO_NAME}/branches" --method GET --jq '.[] | select(.name == "anotherbranch") | .protected')
+	assert_equal "$is_anotherbranch_protected" "false"
 }
 
 # bats file_tags=common
