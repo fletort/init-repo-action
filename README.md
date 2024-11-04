@@ -1,19 +1,21 @@
 # init-repo-action
 
-Internal (personal) Action to Init my Repositories following my internal rules
+Action to Init Repositories
+[![Super-Linter](https://github.com/fletort/init-repo-action/actions/workflows/linter.yml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+[![Continuous Testing](https://github.com/fletort/init-repo-action/actions/workflows/test_functional.yml/badge.svg)](https://github.com/fletort/init-repo-action/actions/workflows/test.yml)
+[![Testspace tests count](https://img.shields.io/testspace/total/fletort/fletort%3Ainit-repo-action/main)](https://fletort.testspace.com/projects/68222/spaces)
 
-[![Continuous Testing](https://github.com/fletort/init-repo-action/actions/workflows/test.yml/badge.svg)](https://github.com/fletort/init-repo-action/actions/workflows/test.yml)
+This action was created to can have an unique code/procedure to create my
+repositories from "dynamic template" whatever the context.
+It can be adapted to a lot of behavior.
 
-This personal action was created to can have an unique code/procedure to create my
-repor whatever the context.
+It can be used in two main ways:
 
-Actually my repositories can be created from:
-
-- _a repository tool_ as my [dynamic-template-tool action](https://github.com/fletort/dynamic-template-tool),
-- or as a Dynamic Template: directly from the template creation procedure as in
+- From _a repository tool_ as my [dynamic-template-tool action](https://github.com/fletort/dynamic-template-tool),
+- or as a Auto Dynamic Template: directly from the template creation procedure as in
   my [template-common-js](https://github.com/fletort/template-common-js). This
-  last case is only possible when the new repositories is created inside an
-  organization, where needed secrets can be available globally.
+  last case is **only possible** when the new repositories is created **inside an**
+  **organization**, where needed secrets can be available globally.
 
 ## Behaviour
 
@@ -139,11 +141,12 @@ As this action used the [fletort/jinja2-template-action], your template
 can include jinja2 syntax. [See official Jinja2 Template Designer Documentation](https://jinja.palletsprojects.com/en/3.0.x/templates/#).
 
 Specific Variable are injected by this action, and can be used in your template :
-| Name | Description |
-| ---- | ----------- |
-| REPOSITORY_PATH | Repository that is initalized (with the owner). It is the value of the `repository` input. |
-| TESTSPACE_SPACE_ID | ID of the created Testspace Space. This is the output of the [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action). If not testspace space is initialized (`testspace_link_enable` to false), the value of TESTSPACE_SPACE_ID is empty. |
-| DEPLOYMENT_REPO_PATH | Repository on which deployment is possible (with the owner). It is the value of the `repository_deployment` input. If no deployment feature is not initialized, the value of DEPLOYMENT_REPO_PATH is empty. |
+
+| Name                 | Description                                                                                                                                                                                                                                                             |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| REPOSITORY_PATH      | Repository that is initalized (with the owner). It is the value of the `repository` input.                                                                                                                                                                              |
+| TESTSPACE_SPACE_ID   | ID of the created Testspace Space. This is the output of the [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action). If not testspace space is initialized (`testspace_link_enable` to false), the value of TESTSPACE_SPACE_ID is empty. |
+| DEPLOYMENT_REPO_PATH | Repository on which deployment is possible (with the owner). It is the value of the `repository_deployment` input. If no deployment feature is not initialized, the value of DEPLOYMENT_REPO_PATH is empty.                                                             |
 
 ## Code Quality
 
