@@ -12,13 +12,13 @@
 # - GH_TOKEN: Token used by gh cli
 
 setup() {
-    load 'test_helper/bats-support/load'
-    load 'test_helper/bats-assert/load'
-    load 'test_helper/bats-file/load'
+  load 'test_helper/bats-support/load'
+  load 'test_helper/bats-assert/load'
+  load 'test_helper/bats-file/load'
 }
 
 @test "A new secret is not created to store the ssh private key" {
-  run gh secret list --repo ${REPO_ORG}/${REPO_NAME} --json name --jq '.[].name'
+  run gh secret list --repo "${REPO_ORG}/${REPO_NAME}" --json name --jq '.[].name'
   refute_output --partial 'PUBLISHING_KEY'
 }
 
@@ -34,13 +34,11 @@ setup() {
 }
 
 @test "Template Resolution without deployement information" {
-  git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
-  cd ${REPO_NAME}
+  git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
+  cd "${REPO_NAME}" || exit
   git fetch
   git switch template_resolution
   assert_file_exist ./README.md
   assert_file_contains ./README.md "CIReportRepoPath:[[:space:]]\+$"
   cd ..
 }
-
-

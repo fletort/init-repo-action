@@ -19,45 +19,49 @@ on:
         required: true
         type: string
       bats_arg:
-        default: ''
+        default: ""
         type: string
     secrets:
       TESTSPACE_TOKEN:
         required: true
+      test_token:
+        required: true
+
+permissions: read-all
 
 jobs:
   test_result:
     name: Test Result
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout Local Repo
-          id: checkout
-          uses: actions/checkout@v4
+      - name: Checkout Local Repo
+        id: checkout
+        uses: actions/checkout@v4
 
-        - name: Install bats
-          id: install-bats
-          run: ./test/install_bats.sh
+      - name: Install bats
+        id: install-bats
+        run: ./test/install_bats.sh
 
-        - name: Test Waited Results
-          id: test-action-result
-          env:
-            REPO_NAME: ${{ inputs.repo_name }}
-            REPO_ORG: ${{ inputs.repo_org }}
-            TEST_UUID_FILE: ${{ vars.TEST_UUID_FILENAME }}
-            WAITED_UUID: ${{ inputs.waited_uuid }}
-            TESTSPACE_SPACE_ID: ${{ inputs.testspace_id }}
-            TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
-            PUBLISHED_REPO_ORG: ${{ vars.TEST_PUBLISHED_REPO_ORG }}
-            PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}  
-            GH_TOKEN: ${{ secrets.test_token }}
-          run: |
-            cp test/test_action.bats test/${{ inputs.test_name }}.bats
-            ./test/bats/bin/bats --report-formatter junit test/${{ inputs.test_name }}.bats --filter-tags common ${{ inputs.bats_arg }}
+      - name: Test Waited Results
+        id: test-action-result
+        env:
+          REPO_NAME: ${{ inputs.repo_name }}
+          REPO_ORG: ${{ inputs.repo_org }}
+          TEST_UUID_FILE: ${{ vars.TEST_UUID_FILENAME }}
+          WAITED_UUID: ${{ inputs.waited_uuid }}
+          TESTSPACE_SPACE_ID: ${{ inputs.testspace_id }}
+          TESTSPACE_TOKEN: ${{ secrets.TESTSPACE_TOKEN }}
+          PUBLISHED_REPO_ORG: ${{ vars.TEST_PUBLISHED_REPO_ORG }}
+          PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
+          GH_TOKEN: ${{ secrets.test_token }}
+        run: |
+          cp test/test_action.bats test/${{ inputs.test_name }}.bats
+          ./test/bats/bin/bats --report-formatter junit test/${{ inputs.test_name }}.bats --filter-tags common ${{ inputs.bats_arg }}
 
-        - name: Keep Test Report
-          id: test-report
-          uses: actions/upload-artifact@v4
-          with:
-            name: ${{ inputs.test_name }}
-            path: report.xml
-            retention-days: 1
+      - name: Keep Test Report
+        id: test-report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.test_name }}
+          path: report.xml
+          retention-days: 1

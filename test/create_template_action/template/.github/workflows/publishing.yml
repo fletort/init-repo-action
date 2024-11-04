@@ -4,8 +4,14 @@ on:
   # repository_dispatch:
   #   types: [start-test]
   workflow_dispatch:
+    #checkov:skip=CKV_GHA_7:This tool needs input from test client
     inputs:
-      distinct_id: # As requested by codex-/return-dispatch@v1
+      # As requested by codex-/return-dispatch@v1
+      distinct_id:
+        type: string
+        required: true
+
+permissions: read-all
 
 jobs:
   test-publishing:
@@ -14,11 +20,11 @@ jobs:
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }} # As requested by codex-/return-dispatch@v1
         run: echo ${{ github.event.inputs.distinct_id }}
-      
+
       - name: Checkout
         id: checkout
         uses: actions/checkout@v4
-      
+
       - name: Test if we can publish
         uses: peaceiris/actions-gh-pages@v4
         with:

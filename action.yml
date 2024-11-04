@@ -1,18 +1,18 @@
-name: 'Init Repository'
-description: 'Internal Action to Init My repositories following internal rules.'
-author: 'fletort'
+name: "Init Repository"
+description: "Internal Action to Init My repositories following internal rules."
+author: "fletort"
 branding:
-  icon: 'sliders'
-  color: 'red'
+  icon: "sliders"
+  color: "red"
 inputs:
   repository:
-    description: 'Repository Name to init. Indicate the repository name with owner. For example owner/my_project'
+    description: "Repository Name to init. Indicate the repository name with owner. For example owner/my_project"
     default: ${{ github.repository }}
   template:
-    description: 'Template to use to init the repository (use only if repo is not already created)'
+    description: "Template to use to init the repository (use only if repo is not already created)"
     default: no_init
   repository_deployment:
-    description: > 
+    description: >
       Repo on which we want to make deployement. For example owner/my_published_repo.
       If not specified, the deployment feature is not initialized.
     default:
@@ -29,7 +29,7 @@ inputs:
     description: >
       Indicates if the testspace link feature is enable. If set to `true` the
       `testspace_token` attribut is *mandatory*. Default is `false`.
-    default: 'false'
+    default: "false"
   testspace_token:
     description: >
       Personal testspace token used to interact with the testspace API to create
@@ -43,20 +43,16 @@ inputs:
   delete_workflow:
     default: true
   j2_keep_template:
-    description:
-      'Put to `true` to keep original template jinja2 file.'
+    description: "Put to `true` to keep original template jinja2 file."
     default: false
   j2_data_file:
-    description:
-      'Source file contening inputs variable for the jinja2 templates.'
-    default: ''
+    description: "Source file contening inputs variable for the jinja2 templates."
+    default: ""
   j2_data_format:
-    description:
-      'Format of the `j2_data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the extension then on the content.'
+    description: "Format of the `j2_data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the extension then on the content."
     default: automatic
   branches:
-    description:
-      JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
+    description: JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
     default: automatic
 
 outputs:
@@ -64,12 +60,11 @@ outputs:
     description: The testspace space id created
     value: ${{ steps.testspace_creation.outputs.id }}
 
-
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Create the repository from the template
-      if:  ${{ inputs.template != 'no_init' }}
+      if: ${{ inputs.template != 'no_init' }}
       shell: bash
       # We are waiting to see the main branch on the created repo
       # without that we have an error on the following checkout
@@ -160,9 +155,9 @@ runs:
       uses: peter-evans/create-pull-request@v7
       with:
         path: ${{ inputs.repository }}
-        commit-message: 'Dynamic Template Resolution [skip ci]'
-        branch: 'template_resolution'
-        base: 'develop'
-        title: 'Dynamic Template Resolution'
-        body: 'Jinja2 Template Resolution made by jinja2-template-action'
+        commit-message: "Dynamic Template Resolution [skip ci]"
+        branch: "template_resolution"
+        base: "develop"
+        title: "Dynamic Template Resolution"
+        body: "Jinja2 Template Resolution made by jinja2-template-action"
         token: ${{ inputs.token }}
