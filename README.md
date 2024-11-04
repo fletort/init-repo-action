@@ -22,8 +22,7 @@ organization, where needed secrets can be available globally.
 - Create the linked TestSpace Project with the help of the
 [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) action in the specified `testspace_domain`
 if asked with `testspace_link_enable` parameter.
-- Create a develop branch on the new repository
-- Define main and develop branch protection
+- Define new branch and related branch protection with the help of the [fletort/branch-protection-action]
 - Manage Dynamic Template Substitution with the help of the
 [fletort/jinja2-template-action] action.
 - Remove AutoInit Workflow (this feature can be disabled with the `delete-workflow` option):
@@ -93,8 +92,7 @@ jobs:
           testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
 ```
 
-See my template-common-js [template init workflow](https://github.com/fletort/template-common-js/blob/main/.github/workflows/init_repo.yml) for an up to date Dynamic Template worflow 
-
+See my template-common-js [template init workflow](https://github.com/fletort/template-common-js/blob/main/.github/workflows/init_repo.yml) for an up to date Dynamic Template worflow.
 
 ### Actions inputs
 
@@ -114,6 +112,7 @@ All other inputs are **optional**.
 | `j2_keep_template` | Put to `true` to keep original template file. See keep_template input of [fletort/jinja2-template-action]. | `false` |
 | `j2_data_file` |  Source file contening inputs variable for the jinja template. See data_file input of [fletort/jinja2-template-action]. | `''` |
 | `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detction is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action].| `automatic` |
+| `branches` | List of branches to create with protection definition. See branches input of [fletort/branch-protection-action]. | If not defined use the local file [branch_protection.yam](./branch_protection.yaml) |
 
 #### token
 
@@ -155,8 +154,9 @@ For exemple the "tool" test suite contains the following tests:
 ![alt](./test/img/testspace_tool_scenary.png)
 
 - The **Tool scenario** tests the role in ["a tool way"](#used-as-a-tool), i.e. targeting a remote repository that is created by the role itself.
-In this case, we are also testing that we are able to define variable from data file on the jinja2 sub-action
-(test the link between this actions inputs and the sub-action)
+In this case, we are also testing:
+  - that we are able to define variable from data file on the jinja2 sub-action (test the link between this actions inputs and the sub-action)
+  - that we are able to define a custom branch protection (test the link between this actions inputs and the sub-action)
 - The **AutoInit scenario** tests the role in ["Dynamic Template way"](#used-from-a-repo-that-init-itself), i.e. a repository that is using the role on itself.
 In this case, we are also testing that we are able to ask to jinja2 sub-action to keep original template file.
 (test the link between this actions inputs and the sub-action)
@@ -169,4 +169,5 @@ In this case, we are also testing that we are able to ask to jinja2 sub-action t
 The scripts and documentation in this project are released under the
 [MIT License](LICENSE)
 
-[fletort/jinja2-template-action]: (https://github.com/fletort/jinja2-template-action)
+[fletort/jinja2-template-action]: https://github.com/fletort/jinja2-template-action
+[fletort/branch-protection-action]: https://github.com/fletort/branch-protection-action

@@ -54,6 +54,10 @@ inputs:
     description:
       'Format of the `j2_data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the extension then on the content.'
     default: automatic
+  branches:
+    description:
+      JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
+    default: automatic
 
 outputs:
   testspace_space_id:
@@ -101,20 +105,13 @@ runs:
         token: ${{ inputs.testspace_token }}
         repository: ${{ inputs.repository }}
         domain: ${{ inputs.testspace_domain }}
-    - name: Create develop Branch
-      # need write permission on the token (not the case by default on organization)
-      shell: bash
-      run: |
-        cd ${{ inputs.repository }}
-        git checkout -b develop
-        git push origin develop
     - name: Define Branch Protection
-      shell: bash
-      run: |
-        gh api "repos/${{ inputs.repository }}/branches/main/protection" --method PUT --input ${{ github.action_path }}/branch_protection.json
-        gh api "repos/${{ inputs.repository }}/branches/develop/protection" --method PUT --input ${{ github.action_path }}/branch_protection.json
-      env:
-        GH_TOKEN: ${{ inputs.token }}
+      uses: fletort/branch-protection-action@v1
+      with:
+        repository: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+        branches: ${{ inputs.branches == 'automatic' && format('{0}/branch_protection.yaml', github.action_path) || inputs.branches }}
+
     - name: "Manage Dynamic Template"
       id: template
       with:
