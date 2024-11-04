@@ -3,66 +3,67 @@ name: Test
 on:
   workflow_call:
     inputs:
-        repo_name:
-            required: true
-            type: string
-        repo_org:
-            required: true
-            type: string
-        other_repo_to_delete:
-            type: string
+      repo_name:
+        required: true
+        type: string
+      repo_org:
+        required: true
+        type: string
+      other_repo_to_delete:
+        type: string
     secrets:
-        TEST_TOKEN:
-            required: true
+      TEST_TOKEN:
+        required: true
+
+permissions: read-all
 
 jobs:
-    test_prerequisite:
-        name: Prerequisite
-        runs-on: ubuntu-latest
-        steps:
-            - name: Checkout Local Repo
-              id: checkout
-              uses: actions/checkout@v4
+  test_prerequisite:
+    name: Prerequisite
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Local Repo
+        id: checkout
+        uses: actions/checkout@v4
 
-            - name: Clean Previous Test Data
-              env:
-                GH_TOKEN: ${{ secrets.TEST_TOKEN }}
-              run: |
-                gh repo delete ${{ inputs.repo_org}}/${{ inputs.repo_name }} --yes || true
-                readarray -t repos <<<"${{ inputs.other_repo_to_delete }}"
-                for repo in "${repos[@]}"
-                do
-                  gh repo delete ${repo} --yes || true
-                done
-    
-            - name: Create repository
-              uses: f1lander/create-repository-action@v1.0.2
-              with:
-                name: '${{ inputs.repo_name }}'
-                org: '${{ inputs.repo_org }}'
-                access-token: '${{ secrets.TEST_TOKEN }}'
+      - name: Clean Previous Test Data
+        env:
+          GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+        run: |
+          gh repo delete ${{ inputs.repo_org}}/${{ inputs.repo_name }} --yes || true
+          readarray -t repos <<<"${{ inputs.other_repo_to_delete }}"
+          for repo in "${repos[@]}"
+          do
+            gh repo delete "${repo}" --yes || true
+          done
 
-            - name: Checkout Repository
-              id: checkout_template
-              uses: actions/checkout@v4
-              with:
-                    repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
-                    path: ${{ inputs.repo_name }}
-                    token: ${{ secrets.TEST_TOKEN }}
+      - name: Create repository
+        uses: f1lander/create-repository-action@v1.0.2
+        with:
+          name: "${{ inputs.repo_name }}"
+          org: "${{ inputs.repo_org }}"
+          access-token: "${{ secrets.TEST_TOKEN }}"
 
-            - name: Copy test workflow & content
-              id: copy_content
-              shell: bash
-              run: |
-                cp -r ./test/create_template_action/template/. ${{ inputs.repo_name }}/
-                uuid=$(uuidgen)
-                echo $uuid > ${{ inputs.repo_name }}/${{ vars.TEST_UUID_FILENAME }}
-                echo "uuid=${uuid}" >> "$GITHUB_OUTPUT"
-                repo=${{ github.repository }}
+      - name: Checkout Repository
+        id: checkout_template
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
+          path: ${{ inputs.repo_name }}
+          token: ${{ secrets.TEST_TOKEN }}
 
-            - name: Commit & Push changes To Repository
-              uses: actions-js/push@master
-              with:
-                github_token: '${{ secrets.TEST_TOKEN }}'
-                directory: ${{ inputs.repo_name }}
-                repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
+      - name: Copy test workflow & content
+        id: copy_content
+        shell: bash
+        run: |
+          cp -r ./test/create_template_action/template/. ${{ inputs.repo_name }}/
+          uuid="$(uuidgen)"
+          echo "$uuid" > ${{ inputs.repo_name }}/${{ vars.TEST_UUID_FILENAME }}
+          echo "uuid=${uuid}" >> "$GITHUB_OUTPUT"
+
+      - name: Commit & Push changes To Repository
+        uses: actions-js/push@master
+        with:
+          github_token: "${{ secrets.TEST_TOKEN }}"
+          directory: ${{ inputs.repo_name }}
+          repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}

@@ -12,18 +12,18 @@
 # - GH_TOKEN: Token used by gh cli
 
 setup() {
-    load 'test_helper/bats-support/load'
-    load 'test_helper/bats-assert/load'
-    load 'test_helper/bats-file/load'
+  load 'test_helper/bats-support/load'
+  load 'test_helper/bats-assert/load'
+  load 'test_helper/bats-file/load'
 }
 
 @test "A new secret is created to store the ssh private key" {
-  run gh secret list --repo ${REPO_ORG}/${REPO_NAME} --json name --jq '.[].name'
+  run gh secret list --repo "${REPO_ORG}/${REPO_NAME}" --json name --jq '.[].name'
   assert_line --partial 'PUBLISHING_KEY'
 }
 
 #@test "Deployment key is defined" {
-#  run gh repo deploy-key list --repo ${PUBLISHED_REPO_ORG}/${PUBLISHED_REPO_NAME} --json title --jq '.[].title'
+#  run gh repo deploy-key list --repo "${PUBLISHED_REPO_ORG}/${PUBLISHED_REPO_NAME}" --json title --jq '.[].title'
 #  assert_line --partial '${REPO_ORG}/${REPO_NAME}'
 #}
 
@@ -34,14 +34,11 @@ setup() {
 }
 
 @test "Template Resolution without testspace information" {
-  git clone https://github.com/${REPO_ORG}/${REPO_NAME}.git ${REPO_NAME}
-  cd ${REPO_NAME}
+  git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
+  cd "${REPO_NAME}" || exit
   git fetch
   git switch template_resolution
   assert_file_exist ./README.md
   assert_file_contains ./README.md "TestSpaceId:[[:space:]]\+$"
   cd ..
 }
-
-
-
