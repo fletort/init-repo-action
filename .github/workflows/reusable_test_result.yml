@@ -18,9 +18,6 @@ on:
       repo_org:
         required: true
         type: string
-      bats_arg:
-        default: ""
-        type: string
     secrets:
       TESTSPACE_TOKEN:
         required: true
@@ -55,8 +52,7 @@ jobs:
           PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
           GH_TOKEN: ${{ secrets.test_token }}
         run: |
-          cp test/test_action.bats test/${{ inputs.test_name }}.bats
-          ./test/bats/bin/bats --report-formatter junit test/${{ inputs.test_name }}.bats --filter-tags common ${{ inputs.bats_arg }}
+          ./test/bats/bin/bats --report-formatter junit test/${{ inputs.test_name }}.bats
 
       - name: Keep Test Report
         id: test-report

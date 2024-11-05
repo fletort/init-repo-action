@@ -26,7 +26,6 @@ It can be used in two main ways:
 - Create the linked TestSpace Project with the help of the
   [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action) action in the specified `testspace_domain`
   if asked with `testspace_link_enable` parameter.
-- Define new branch and related branch protection with the help of the [fletort/branch-protection-action]
 - Manage Dynamic Template Substitution with the help of the
   [fletort/jinja2-template-action] action.
 - Remove AutoInit Workflow (this feature can be disabled with the `delete-workflow` option):
@@ -36,8 +35,9 @@ It can be used in two main ways:
 - Rename all directorie from the template that beging with the `$` character.
   For example the `$.github` directory will be renamed to `.github`.
   If the final directory exists, it is replaced with the content of the renamed directory.
-- Create the Pull Request for this Template resolution code modification
+- Create a Commit and optionaly related Pull Request for this Template resolution code modification
   with the help of [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request) action.
+- Define new branch and related branch protection with the help of the [fletort/branch-protection-action]. If a simple commit is made, this step is done before the commit, if a PR is used this step is made before the Commit/PR.
 
 We recommend using a service account with the least permissions necessary. Also
 when generating a new PAT, select the least scopes necessary.
@@ -106,20 +106,41 @@ See my template-common-js [template init workflow](https://github.com/fletort/te
 Only inputs specified in the "init itself" usage upper are mandatories.
 All other inputs are **optional**.
 
-| Name                    | Description                                                                                                                                                                                                                                         | Default                                                                             |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `repository`            | Repository to create and/or init. Indicate the repository name with owner.                                                                                                                                                                          | `${{ github.repository }}`                                                          |
-| `template`              | Template Repository to use to create the repository. Indicate the repository name with owner. If the repository is already created, indicates `no_init`                                                                                             | `no_init`                                                                           |
-| `repository_deployment` | Repository on which `repository` will be able to deploy to through SSH credentials. Indicate the repository name with owner. If not defined (default value), the deployement feature is not initialized.                                            | ``                                                                                  |
-| `token`                 | The token that action (and used actions) will use. See token.                                                                                                                                                                                       | **MANDATORY**                                                                       |
-| `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable.                                                                                                                                                                      | `false`                                                                             |
-| `testspace_token`       | Personal testspace token used to interact with the testspace API to create the project                                                                                                                                                              | **MANDATORY if testspace feature is enabled with `testspace_link_enable`**          |
-| `testspace_domain`      | Testspace SubDomain where the testspace project will be created                                                                                                                                                                                     | `${{ github.repository_owner }}`                                                    |
-| `delete_workflow`       | Indicates if the workflow contening the call to this action must be deleted                                                                                                                                                                         | `true`                                                                              |
-| `j2_keep_template`      | Put to `true` to keep original template file. See keep_template input of [fletort/jinja2-template-action].                                                                                                                                          | `false`                                                                             |
-| `j2_data_file`          | Source file contening inputs variable for the jinja template. See data_file input of [fletort/jinja2-template-action].                                                                                                                              | `''`                                                                                |
-| `j2_data_format`        | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detction is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action]. | `automatic`                                                                         |
-| `branches`              | List of branches to create with protection definition. See branches input of [fletort/branch-protection-action].                                                                                                                                    | If not defined use the local file [branch_protection.yam](./branch_protection.yaml) |
+<!-- prettier-ignore-start -->
+| Name | Description | Default |
+| --- | --- | --- |
+| `repository` | Repository to create and/or init. Indicate the repository name with owner. | `${{ github.repository }}` |
+| `template` | Template Repository to use to create the repository. Indicate the repository name with owner. If not used (repository is already created) indicates `no_init` | `no_init` |
+| `repository_deployment` | Repository on which `repository` will be able to deploy to through SSH credentials. Indicate the repository name with owner. If not defined (default value), the deployement feature is not initialized. | |
+| `token` | The token that action (and used actions) will use. See token. | **MANDATORY** |
+| `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable. | `false`                                                                             |
+| `testspace_token` | Personal testspace token used to interact with the testspace API to create the project  | **MANDATORY if testspace feature is enabled with `testspace_link_enable`**          |
+| `testspace_domain`| Testspace SubDomain where the testspace project will be created                | `${{ github.repository_owner }}`                                                    |
+| `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted    | `true`                                                                              |
+| `j2_keep_template` | Put to `true` to keep original template file. See keep_template input of [fletort/jinja2-template-action]. | `false` |
+| `j2_data_file` | Source file contening inputs variable for the jinja template. See data_file input of [fletort/jinja2-template-action]. | `''` |
+| `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detction is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action]. | `automatic` |
+| `branches` | List of branches to create with protection definition. See branches input of [fletort/branch-protection-action]. | If not defined use the local file [branch_protection.yam](./branch_protection.yaml) |
+| `commit-message` | The message to use when committing changes | '[init-repo-action] Dynamic Template Resolution' |
+| `branch-no-pr` | Branch where commit will be done if a pr is not created (on default branch if not defined) | |
+| `pr-created` | Indicates if a pr is created | `true` |
+| `pr-branch` | Branch where commit will be done if a pr is created. | `template_resolution` |
+| `pr-base-branch` | Sets the pull request base branch  (on default branch if not defined) | |
+| `pr-title` | The title of the pull request | `Dynamic Template Resolution` |
+| `pr-body` | The body of the pull request | `Jinja2 Template Resolution made by jinja2-template-action` |
+<!-- prettier-ignore-end -->
+
+#### Commit changes with or without PR
+
+It is possible to commit change (template resolution) directly on a branch with or without an associated PR.
+In all the case, the commit message is always defined with `commit-message`.
+
+- If a PR is not needed (`pr-created` is `false`), the existing branch where the commit is done is defined by `branch-no-pr`.
+- If a PR is needed, the branch where the commit is doned is defined by `pr-branch`. This branch can be created for this purpose.
+  Other attributes of the PR can be defined: `pr-base-branch` defines the PR base branch. If `pr-branch` is created, it is
+  created from this `pr-base-branch`. Then the PR title is defined with `pr-title` and the body of its description is
+  defined with `pr-body`. All the PR related procedure is managed with the [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request)
+  action.
 
 #### token
 
@@ -169,8 +190,9 @@ For exemple the "tool" test suite contains the following tests:
   - that we are able to define variable from data file on the jinja2 sub-action (test the link between this actions inputs and the sub-action)
   - that we are able to define a custom branch protection (test the link between this actions inputs and the sub-action)
 - The **AutoInit scenario** tests the role in ["Dynamic Template way"](#used-from-a-repository-that-init-itself), i.e. a repository that is using the role on itself.
-  In this case, we are also testing that we are able to ask to jinja2 sub-action to keep original template file.
-  (test the link between this actions inputs and the sub-action)
+  In this case, we are also testing:
+  - that we are able to ask to jinja2 sub-action to keep original template file. (test the link between this actions inputs and the sub-action)
+  - that we are able to commit directly to default branch (main) without PR
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
 - The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
 - The **No Deployment scenario** tests the role when Deployment feature is disabled
