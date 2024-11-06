@@ -54,6 +54,25 @@ inputs:
   branches:
     description: JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
     default: automatic
+  commit-message:
+    description: The message to use when committing changes
+    default: "[init-repo-action] Dynamic Template Resolution"
+  branch-no-pr:
+    description: Branch where commit will be done if a pr is not created (on default branch if not defined)
+  pr-branch:
+    description: Branch where commit will be done if a pr is created.
+    default: template_resolution
+  pr-created:
+    description: Indicates if a pr is created
+    default: "true"
+  pr-base-branch:
+    description: Sets the pull request base branch  (on default branch if not defined)
+  pr-title:
+    description: The title of the pull request.
+    default: Dynamic Template Resolution
+  pr-body:
+    description: The body of the pull request.
+    default: Jinja2 Template Resolution made by jinja2-template-action
 
 outputs:
   testspace_space_id:
@@ -84,6 +103,16 @@ runs:
         repository: ${{ inputs.repository }}
         path: ${{ inputs.repository }}
         token: ${{ inputs.token }}
+
+    - name: Extract default branch name
+      id: extract_branch
+      shell: bash
+      run: |
+        BASE_BRANCH_REF="${{ steps.checkout.outputs.ref }}"
+        BASE_BRANCH="${BASE_BRANCH_REF#refs/heads/}"
+        echo "GIT_BRANCH=${BASE_BRANCH}" >> "$GITHUB_ENV"
+        echo "Default Base Branch is: $BASE_BRANCH"
+
     - name: "Manage connection to internal global deployement repo: ${{ inputs.repository_deployment }}"
       if: ${{ inputs.repository_deployment != '' }}
       id: report_repo_cnx
@@ -100,12 +129,6 @@ runs:
         token: ${{ inputs.testspace_token }}
         repository: ${{ inputs.repository }}
         domain: ${{ inputs.testspace_domain }}
-    - name: Define Branch Protection
-      uses: fletort/branch-protection-action@v1
-      with:
-        repository: ${{ inputs.repository }}
-        token: ${{ inputs.token }}
-        branches: ${{ inputs.branches == 'automatic' && format('{0}/branch_protection.yaml', github.action_path) || inputs.branches }}
 
     - name: "Manage Dynamic Template"
       id: template
@@ -151,13 +174,31 @@ runs:
           mv "${dirpath}" "${newdirpath}"
         done
 
+    - name: Create a Simple Commmit for Template Resolution
+      if: ${{ inputs.pr-created != 'true' }}
+      uses: actions-js/push@master
+      with:
+        repository: ${{ inputs.repository }}
+        directory: ${{ inputs.repository }}
+        message: ${{ inputs.commit-message }}
+        branch: ${{ inputs.branch-no-pr && inputs.branch-no-pr || env.GIT_BRANCH }}
+        github_token: "${{ inputs.token }}"
+
+    - name: Define Branch Protection
+      uses: fletort/branch-protection-action@v1
+      with:
+        repository: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+        branches: ${{ inputs.branches == 'automatic' && format('{0}/branch_protection.yaml', github.action_path) || inputs.branches }}
+
     - name: Create Pull Request for Template Resolution
+      if: ${{ inputs.pr-created == 'true' }}
       uses: peter-evans/create-pull-request@v7
       with:
         path: ${{ inputs.repository }}
-        commit-message: "Dynamic Template Resolution [skip ci]"
-        branch: "template_resolution"
-        base: "develop"
-        title: "Dynamic Template Resolution"
-        body: "Jinja2 Template Resolution made by jinja2-template-action"
+        commit-message: ${{ inputs.commit-message }}
+        branch: ${{ inputs.pr-branch }}
+        base: ${{ inputs.pr-base-branch && inputs.pr-base-branch || env.GIT_BRANCH }}
+        title: ${{ inputs.pr-title}}
+        body: ${{ inputs.pr-body }}
         token: ${{ inputs.token }}

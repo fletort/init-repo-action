@@ -91,7 +91,6 @@ jobs:
       repo_name: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
       repo_org: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
       test_name: test_autoinit
-      bats_arg: "--filter-tags test_keep_template --filter-tags test_no_data_file --filter-tags default_correction"
     secrets: inherit
 
   clean:
