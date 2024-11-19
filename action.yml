@@ -51,6 +51,12 @@ inputs:
   j2_data_format:
     description: "Format of the `j2_data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the extension then on the content."
     default: automatic
+  j2_data_url:
+    description: URL Link contening inputs variable for the jinja template.
+    default: ""
+  j2_data_url_format:
+    description: Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself.
+    default: automatic
   branches:
     description: JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
     default: automatic
@@ -121,6 +127,7 @@ runs:
         client_repo: ${{ inputs.repository }}
         deploy_repo: ${{ inputs.repository_deployment }}
         token: ${{ inputs.token }}
+
     - name: "TestSpace Project Creation"
       if: ${{ inputs.testspace_link_enable == 'true' }}
       id: testspace_creation
@@ -140,6 +147,8 @@ runs:
         keep_template: ${{ inputs.j2_keep_template }}
         data_file: ${{ inputs.j2_data_file }}
         data_format: ${{ inputs.j2_data_format }}
+        data_url: ${{ inputs.j2_data_url }}
+        data_url_format: ${{ inputs.j2_data_url_format }}
       uses: fletort/jinja2-template-action@v1
 
     - name: Remove Init Workflow on Dynamic Template

@@ -102,6 +102,18 @@ setup() {
   cd ..
 }
 
+@test "Template Resolution use web file" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
+  fi
+  cd "${REPO_NAME}" || exit
+  git fetch
+  git switch template_resolution
+  assert_file_exist ./README.md
+  assert_file_contains ./README.md "FromUrl: it_is_working from_url"
+  cd ..
+}
+
 @test "Workflow File is deleted" {
   if [ ! -d "${REPO_NAME}" ]; then
     git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"

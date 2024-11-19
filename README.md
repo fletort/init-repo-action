@@ -120,6 +120,8 @@ All other inputs are **optional**.
 | `j2_keep_template` | Put to `true` to keep original template file. See keep_template input of [fletort/jinja2-template-action]. | `false` |
 | `j2_data_file` | Source file contening inputs variable for the jinja template. See data_file input of [fletort/jinja2-template-action]. | `''` |
 | `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detction is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action]. | `automatic` |
+| `j2_data_url` | URL Link contening inputs variable for the jinja template. See data_url input of [fletort/jinja2-template-action]. | "" |
+| `j2_data_url_format` | Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself. See data_url_format input of [fletort/jinja2-template-action]. | `automatic` |
 | `branches` | List of branches to create with protection definition. See branches input of [fletort/branch-protection-action]. | If not defined use the local file [branch_protection.yam](./branch_protection.yaml) |
 | `commit-message` | The message to use when committing changes | '[init-repo-action] Dynamic Template Resolution' |
 | `branch-no-pr` | Branch where commit will be done if a pr is not created (on default branch if not defined) | |
@@ -188,6 +190,7 @@ For exemple the "tool" test suite contains the following tests:
 - The **Tool scenario** tests the role in ["a tool way"](#used-as-a-tool), i.e. targeting a remote repository that is created by the role itself.
   In this case, we are also testing:
   - that we are able to define variable from data file on the jinja2 sub-action (test the link between this actions inputs and the sub-action)
+  - that we are able to define variable from url file on the jinja2 sub-action (test the link between this actions inputs and the sub-action)
   - that we are able to define a custom branch protection (test the link between this actions inputs and the sub-action)
 - The **AutoInit scenario** tests the role in ["Dynamic Template way"](#used-from-a-repository-that-init-itself), i.e. a repository that is using the role on itself.
   In this case, we are also testing:

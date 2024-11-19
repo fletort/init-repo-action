@@ -87,6 +87,16 @@ setup() {
   cd ..
 }
 
+@test "Template Resolution without url file" {
+  if [ ! -d "${REPO_NAME}" ]; then
+    git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
+  fi
+  cd "${REPO_NAME}" || exit
+  assert_file_exist ./README.md
+  assert_file_contains ./README.md "FromUrl:[[:space:]]\+$"
+  cd ..
+}
+
 @test "Workflow File is deleted" {
   if [ ! -d "${REPO_NAME}" ]; then
     git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
