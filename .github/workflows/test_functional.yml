@@ -1,4 +1,4 @@
-name: 'Functional Tests'
+name: "Functional Tests"
 
 on:
   push:
@@ -6,6 +6,8 @@ on:
 concurrency: # As used repo name are unique, only one functional test can run in same time
   group: functional_test
   cancel-in-progress: false
+
+permissions: read-all
 
 # Needed Global vars (to can be used in local nested reusable workflow)
 # - TEST_TEMPLATE_REPO_NAME
@@ -43,7 +45,7 @@ jobs:
   report:
     if: always()
     name: Save Test Resut
-    needs: [test_tool,test_autoinit,test_no_testspace,test_no_deployment]
+    needs: [test_tool, test_autoinit, test_no_testspace, test_no_deployment]
     runs-on: ubuntu-latest
     steps:
       # Need to checkout to give context to testspace cli
@@ -59,8 +61,8 @@ jobs:
           domain: ${{ github.repository_owner }}
       - name: Testspace push test content
         run: |
-          output=$(testspace "[Integ Tests]./**/report.xml")
+          output="$(testspace "[Integ Tests]./**/report.xml")"
           REGEX="(https://[a-z0-9]+.testspace.com/spaces/[0-9]+/result_sets/[0-9]+)"
           [[ $output =~ $REGEX ]]
           result_set_link="${BASH_REMATCH[1]}"
-          echo "[TestSpace Test Result set]($result_set_link)" >> $GITHUB_STEP_SUMMARY
+          echo "[TestSpace Test Result set]($result_set_link)" >> "$GITHUB_STEP_SUMMARY"

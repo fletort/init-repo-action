@@ -1,18 +1,18 @@
-name: 'Init Repository'
-description: 'Internal Action to Init My repositories following internal rules.'
-author: 'fletort'
+name: "Init Repository"
+description: "Internal Action to Init My repositories following internal rules."
+author: "fletort"
 branding:
-  icon: 'sliders'
-  color: 'red'
+  icon: "sliders"
+  color: "red"
 inputs:
   repository:
-    description: 'Repository Name to init. Indicate the repository name with owner. For example owner/my_project'
+    description: "Repository Name to init. Indicate the repository name with owner. For example owner/my_project"
     default: ${{ github.repository }}
   template:
-    description: 'Template to use to init the repository (use only if repo is not already created)'
+    description: "Template to use to init the repository (use only if repo is not already created)"
     default: no_init
   repository_deployment:
-    description: > 
+    description: >
       Repo on which we want to make deployement. For example owner/my_published_repo.
       If not specified, the deployment feature is not initialized.
     default:
@@ -29,7 +29,7 @@ inputs:
     description: >
       Indicates if the testspace link feature is enable. If set to `true` the
       `testspace_token` attribut is *mandatory*. Default is `false`.
-    default: 'false'
+    default: "false"
   testspace_token:
     description: >
       Personal testspace token used to interact with the testspace API to create
@@ -43,29 +43,56 @@ inputs:
   delete_workflow:
     default: true
   j2_keep_template:
-    description:
-      'Put to `true` to keep original template jinja2 file.'
+    description: "Put to `true` to keep original template jinja2 file."
     default: false
   j2_data_file:
-    description:
-      'Source file contening inputs variable for the jinja2 templates.'
-    default: ''
+    description: "Source file contening inputs variable for the jinja2 templates."
+    default: ""
   j2_data_format:
-    description:
-      'Format of the `j2_data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the extension then on the content.'
+    description: "Format of the `j2_data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the extension then on the content."
     default: automatic
+  j2_data_url:
+    description: URL Link contening inputs variable for the jinja template.
+    default: ""
+  j2_data_url_format:
+    description: Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself.
+    default: automatic
+  j2_undefined_behaviour:
+    descrition: Behaviour of jinja2 engine when an undefined variable is found.
+    default:
+  branches:
+    description: JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
+    default: automatic
+  commit-message:
+    description: The message to use when committing changes
+    default: "[init-repo-action] Dynamic Template Resolution"
+  branch-no-pr:
+    description: Branch where commit will be done if a pr is not created (on default branch if not defined)
+  pr-branch:
+    description: Branch where commit will be done if a pr is created.
+    default: template_resolution
+  pr-created:
+    description: Indicates if a pr is created
+    default: "true"
+  pr-base-branch:
+    description: Sets the pull request base branch  (on default branch if not defined)
+  pr-title:
+    description: The title of the pull request.
+    default: Dynamic Template Resolution
+  pr-body:
+    description: The body of the pull request.
+    default: Jinja2 Template Resolution made by jinja2-template-action
 
 outputs:
   testspace_space_id:
     description: The testspace space id created
     value: ${{ steps.testspace_creation.outputs.id }}
 
-
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Create the repository from the template
-      if:  ${{ inputs.template != 'no_init' }}
+      if: ${{ inputs.template != 'no_init' }}
       shell: bash
       # We are waiting to see the main branch on the created repo
       # without that we have an error on the following checkout
@@ -85,6 +112,16 @@ runs:
         repository: ${{ inputs.repository }}
         path: ${{ inputs.repository }}
         token: ${{ inputs.token }}
+
+    - name: Extract default branch name
+      id: extract_branch
+      shell: bash
+      run: |
+        BASE_BRANCH_REF="${{ steps.checkout.outputs.ref }}"
+        BASE_BRANCH="${BASE_BRANCH_REF#refs/heads/}"
+        echo "GIT_BRANCH=${BASE_BRANCH}" >> "$GITHUB_ENV"
+        echo "Default Base Branch is: $BASE_BRANCH"
+
     - name: "Manage connection to internal global deployement repo: ${{ inputs.repository_deployment }}"
       if: ${{ inputs.repository_deployment != '' }}
       id: report_repo_cnx
@@ -93,6 +130,7 @@ runs:
         client_repo: ${{ inputs.repository }}
         deploy_repo: ${{ inputs.repository_deployment }}
         token: ${{ inputs.token }}
+
     - name: "TestSpace Project Creation"
       if: ${{ inputs.testspace_link_enable == 'true' }}
       id: testspace_creation
@@ -101,20 +139,7 @@ runs:
         token: ${{ inputs.testspace_token }}
         repository: ${{ inputs.repository }}
         domain: ${{ inputs.testspace_domain }}
-    - name: Create develop Branch
-      # need write permission on the token (not the case by default on organization)
-      shell: bash
-      run: |
-        cd ${{ inputs.repository }}
-        git checkout -b develop
-        git push origin develop
-    - name: Define Branch Protection
-      shell: bash
-      run: |
-        gh api "repos/${{ inputs.repository }}/branches/main/protection" --method PUT --input ${{ github.action_path }}/branch_protection.json
-        gh api "repos/${{ inputs.repository }}/branches/develop/protection" --method PUT --input ${{ github.action_path }}/branch_protection.json
-      env:
-        GH_TOKEN: ${{ inputs.token }}
+
     - name: "Manage Dynamic Template"
       id: template
       with:
@@ -125,6 +150,9 @@ runs:
         keep_template: ${{ inputs.j2_keep_template }}
         data_file: ${{ inputs.j2_data_file }}
         data_format: ${{ inputs.j2_data_format }}
+        data_url: ${{ inputs.j2_data_url }}
+        data_url_format: ${{ inputs.j2_data_url_format }}
+        undefined_behaviour: ${{ inputs.j2_undefined_behaviour }}
       uses: fletort/jinja2-template-action@v1
 
     - name: Remove Init Workflow on Dynamic Template
@@ -159,13 +187,31 @@ runs:
           mv "${dirpath}" "${newdirpath}"
         done
 
+    - name: Create a Simple Commmit for Template Resolution
+      if: ${{ inputs.pr-created != 'true' }}
+      uses: actions-js/push@master
+      with:
+        repository: ${{ inputs.repository }}
+        directory: ${{ inputs.repository }}
+        message: ${{ inputs.commit-message }}
+        branch: ${{ inputs.branch-no-pr && inputs.branch-no-pr || env.GIT_BRANCH }}
+        github_token: "${{ inputs.token }}"
+
+    - name: Define Branch Protection
+      uses: fletort/branch-protection-action@v1
+      with:
+        repository: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+        branches: ${{ inputs.branches == 'automatic' && format('{0}/branch_protection.yaml', github.action_path) || inputs.branches }}
+
     - name: Create Pull Request for Template Resolution
+      if: ${{ inputs.pr-created == 'true' }}
       uses: peter-evans/create-pull-request@v7
       with:
         path: ${{ inputs.repository }}
-        commit-message: 'Dynamic Template Resolution [skip ci]'
-        branch: 'template_resolution'
-        base: 'develop'
-        title: 'Dynamic Template Resolution'
-        body: 'Jinja2 Template Resolution made by jinja2-template-action'
+        commit-message: ${{ inputs.commit-message }}
+        branch: ${{ inputs.pr-branch }}
+        base: ${{ inputs.pr-base-branch && inputs.pr-base-branch || env.GIT_BRANCH }}
+        title: ${{ inputs.pr-title}}
+        body: ${{ inputs.pr-body }}
         token: ${{ inputs.token }}

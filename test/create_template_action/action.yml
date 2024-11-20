@@ -1,5 +1,5 @@
 name: Template Creation
-description: 'Action to Init the local Test Template Repository.'
+description: "Action to Init the local Test Template Repository."
 inputs:
   repo_name:
     required: true
@@ -18,12 +18,12 @@ inputs:
     default: uuid.txt
 
 outputs:
-   uuid: 
+  uuid:
     description: "The created uuid"
     value: ${{ steps.copy_content.outputs.uuid }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Checkout Local Repo
       id: checkout
@@ -33,21 +33,21 @@ runs:
       with:
         name: ${{ inputs.repo_name }}
         org: ${{ inputs.repo_org }}
-        access-token: '${{ inputs.token }}'
-    
+        access-token: "${{ inputs.token }}"
+
     - name: Switch repository as a template
       if: ${{ inputs.is_template }}
       shell: bash
       run: |
         gh repo edit ${{ inputs.repo_org }}/${{ inputs.repo_name }} --template
       env:
-        GH_TOKEN: '${{ inputs.token }}'
+        GH_TOKEN: "${{ inputs.token }}"
     - name: Create Published repository
       uses: f1lander/create-repository-action@v1.0.2
       with:
         name: ${{ inputs.repo_name }}
         org: ${{ inputs.repo_org }}
-        access-token: '${{ inputs.token }}'
+        access-token: "${{ inputs.token }}"
     - name: Checkout Template repository
       id: checkout_template
       uses: actions/checkout@v4
@@ -65,12 +65,10 @@ runs:
         echo "uuid=${uuid}" >> "$GITHUB_OUTPUT"
         repo=${{ github.repository }}
         repo_escape="${repo/\//\\\/}"
-        sed -i -e "s/\[ACTION_FULL_NAME\]/${repo_escape}@${{ github.sha }}/g" ${{ inputs.repo_name }}/.github/workflows/auto_init.yml
+        sed -i -e "s/fake\/action@v1/${repo_escape}@${{ github.sha }}/g" ${{ inputs.repo_name }}/.github/workflows/auto_init.yml
     - name: Commit & Push changes To Template repository
       uses: actions-js/push@master
       with:
-        github_token: '${{ inputs.token }}'
+        github_token: "${{ inputs.token }}"
         directory: ${{ inputs.repo_name }}
         repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
-  
-

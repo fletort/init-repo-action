@@ -12,6 +12,8 @@ env:
   repo_org: ${{ vars.TEST_REPO_NO_DEPLOYMENT_ORG }}
   repo_name: ${{ vars.TEST_REPO_NO_DEPLOYMENT_NAME }}
 
+permissions: read-all
+
 jobs:
   prerequisite:
     name: Prerequisite
@@ -26,23 +28,23 @@ jobs:
     needs: prerequisite
     runs-on: ubuntu-latest
     steps:
-        - name: Checkout Local Repo
-          id: checkout
-          uses: actions/checkout@v4
+      - name: Checkout Local Repo
+        id: checkout
+        uses: actions/checkout@v4
 
-        - name: Run Local Action Without Template, without Deployment Repo
-          id: run-local-action
-          uses: ./
-          with:
-            repository: ${{ env.repo_org }}/${{ env.repo_name }}
-            token: ${{ secrets.TEST_TOKEN }}
-            testspace_link_enable: true
-            testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
-            testspace_domain: ${{ env.repo_org }}
+      - name: Run Local Action Without Template, without Deployment Repo
+        id: run-local-action
+        uses: ./
+        with:
+          repository: ${{ env.repo_org }}/${{ env.repo_name }}
+          token: ${{ secrets.TEST_TOKEN }}
+          testspace_link_enable: true
+          testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
+          testspace_domain: ${{ env.repo_org }}
 
   test_tool_result:
-    name: Check 
-    needs: [prerequisite,run_tool_action]
+    name: Check
+    needs: [prerequisite, run_tool_action]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Local Repo

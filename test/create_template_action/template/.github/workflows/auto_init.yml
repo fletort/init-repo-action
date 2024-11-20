@@ -4,12 +4,16 @@ on:
   # repository_dispatch:
   #   types: [start-test]
   workflow_dispatch:
+    #checkov:skip=CKV_GHA_7:This tool needs input from test client
     inputs:
-      distinct_id: # As requested by codex-/return-dispatch@v1
+      # As requested by codex-/return-dispatch@v1
+      distinct_id:
+        type: string
         required: true
       repository_deployment:
         required: true
 
+permissions: read-all
 
 jobs:
   test-auto-init:
@@ -18,16 +22,18 @@ jobs:
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }} # As requested by codex-/return-dispatch@v1
         run: echo ${{ github.event.inputs.distinct_id }}
-          
+
       - name: Auto Init
         id: test
-        uses: [ACTION_FULL_NAME]
+        uses: fake/action@v1
         with:
-            repository_deployment: ${{ github.event.inputs.repository_deployment }}
-            token: ${{ secrets.TEST_TOKEN }}
-            testspace_link_enable: true
-            testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
-            j2_keep_template: true
-      
+          repository_deployment: ${{ github.event.inputs.repository_deployment }}
+          token: ${{ secrets.TEST_TOKEN }}
+          testspace_link_enable: true
+          testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
+          j2_keep_template: true
+          j2_undefined_behaviour: DebugUndefined
+          pr-created: false
+
       - name: echo TestSpace ID ${{ steps.test.outputs.testspace_space_id }} # As requested by our test code
         run: echo ${{ steps.test.outputs.testspace_space_id }}

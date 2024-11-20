@@ -1,12 +1,15 @@
-name: 'Tags'
+name: "Tags"
 on:
   push:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
+
+permissions: read-all
+
 jobs:
   tags:
     runs-on: ubuntu-latest
-    name: 'Additional Tags'
+    name: "Additional Tags"
     permissions:
       contents: write
       actions: write

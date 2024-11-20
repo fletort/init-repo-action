@@ -10,6 +10,8 @@ on:
       TEST_TOKEN:
         required: true
 
+permissions: read-all
+
 jobs:
   test:
     name: Publishing Test
@@ -18,7 +20,7 @@ jobs:
       - name: Checkout Local Repo
         id: checkout
         uses: actions/checkout@v4
-    
+
       # Dispatch an action and get the run ID and URL
       - name: Start the functional test for publishing action
         uses: codex-/return-dispatch@v2
@@ -29,7 +31,7 @@ jobs:
           repo: ${{ vars.TEST_NEW_REPO_NAME }}
           owner: ${{ vars.TEST_NEW_REPO_ORG }}
           workflow: publishing.yml
-      
+
       # Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
       - name: Waiting end of the functional test for publishing action
         uses: Codex-/await-remote-run@v1.12.2
@@ -44,16 +46,16 @@ jobs:
         with:
           repository: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
           path: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
-          token: '${{ secrets.TEST_TOKEN }}'
-      
+          token: "${{ secrets.TEST_TOKEN }}"
+
       - name: Install bats
         id: install-bats
         run: ./test/install_bats.sh
-        
+
       - name: Test Waited Results
         id: test-action-result
         env:
-          PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}  
+          PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
           TEST_UUID_FILE: ${{ vars.TEST_UUID_FILENAME }}
           WAITED_UUID: ${{ inputs.waited_uuid }}
         run: ./test/bats/bin/bats --report-formatter junit test/test_publishing.bats
