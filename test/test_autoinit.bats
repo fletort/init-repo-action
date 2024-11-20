@@ -77,23 +77,23 @@ setup() {
   cd ..
 }
 
-@test "Template Resolution without data file" {
+@test "Template Resolution without data file and with specific Undefined Behavior" {
   if [ ! -d "${REPO_NAME}" ]; then
     git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
   fi
   cd "${REPO_NAME}" || exit
   assert_file_exist ./README.md
-  assert_file_contains ./README.md "FromFile:[[:space:]]\+$"
+  assert_file_contains ./README.md "FromFile: {{ MY_VAR_FROM_FILE }}\+$"
   cd ..
 }
 
-@test "Template Resolution without url file" {
+@test "Template Resolution without url file and with specific Undefined Behavior" {
   if [ ! -d "${REPO_NAME}" ]; then
     git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
   fi
   cd "${REPO_NAME}" || exit
   assert_file_exist ./README.md
-  assert_file_contains ./README.md "FromUrl:[[:space:]]\+$"
+  assert_file_contains ./README.md "FromUrl: {{ URL_KEY_2 }} {{ URL_KEY_1 }}$"
   cd ..
 }
 
