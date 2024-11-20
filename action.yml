@@ -57,6 +57,9 @@ inputs:
   j2_data_url_format:
     description: Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself.
     default: automatic
+  j2_undefined_behaviour:
+    descrition: Behaviour of jinja2 engine when an undefined variable is found.
+    default:
   branches:
     description: JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
     default: automatic
@@ -149,6 +152,7 @@ runs:
         data_format: ${{ inputs.j2_data_format }}
         data_url: ${{ inputs.j2_data_url }}
         data_url_format: ${{ inputs.j2_data_url_format }}
+        undefined_behaviour: ${{ inputs.j2_undefined_behaviour }}
       uses: fletort/jinja2-template-action@v1
 
     - name: Remove Init Workflow on Dynamic Template

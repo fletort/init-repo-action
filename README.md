@@ -122,6 +122,7 @@ All other inputs are **optional**.
 | `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detction is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action]. | `automatic` |
 | `j2_data_url` | URL Link contening inputs variable for the jinja template. See data_url input of [fletort/jinja2-template-action]. | "" |
 | `j2_data_url_format` | Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself. See data_url_format input of [fletort/jinja2-template-action]. | `automatic` |
+| `j2_undefined_behaviour` | Define the behaviour when a not defined variable is found. Can be `Undefined`, `ChainableUndefined`, `DebugUndefined` or `StrictUndefined`. See undefined_behaviour input of [fletort/jinja2-template-action]. | `Undefined` |
 | `branches` | List of branches to create with protection definition. See branches input of [fletort/branch-protection-action]. | If not defined use the local file [branch_protection.yam](./branch_protection.yaml) |
 | `commit-message` | The message to use when committing changes | '[init-repo-action] Dynamic Template Resolution' |
 | `branch-no-pr` | Branch where commit will be done if a pr is not created (on default branch if not defined) | |
@@ -227,6 +228,7 @@ For exemple the "tool" test suite contains the following tests:
   In this case, we are also testing:
   - that we are able to ask to jinja2 sub-action to keep original template file. (test the link between this actions inputs and the sub-action)
   - that we are able to commit directly to default branch (main) without PR
+  - that we are able to define undefined behavior on jinja2 template
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
 - The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
 - The **No Deployment scenario** tests the role when Deployment feature is disabled
