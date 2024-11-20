@@ -58,6 +58,8 @@ jobs:
       - name: Run Local Action
         id: run-local-action
         uses: ./
+        env:
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         with:
           repository: ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }}
           template: ${{ vars.TEST_TEMPLATE_REPO_ORG }}/${{ vars.TEST_TEMPLATE_REPO_NAME }}
@@ -68,6 +70,8 @@ jobs:
           testspace_domain: ${{ vars.TEST_NEW_REPO_ORG }}
           j2_data_file: ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }}/data.json
           j2_data_format: json
+          j2_data_url: https://raw.githubusercontent.com/${{ github.repository }}/refs/heads/${{ env.BRANCH_NAME }}/test/url_data.yml
+          j2_data_url_format: yaml
           branches: ./test/custom_branch_protection.yaml
 
   test_tool_result:
