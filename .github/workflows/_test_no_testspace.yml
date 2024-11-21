@@ -43,7 +43,8 @@ jobs:
           token: ${{ secrets.TEST_TOKEN }}
           testspace_link_enable: false
           pr-created: false
-          branch-no-pr: test_not_existing_branch
+          branch-before: test_branch_before
+          commit-branch: test_not_existing_branch
 
   test_tool_result:
     name: Check

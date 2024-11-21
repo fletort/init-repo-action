@@ -33,6 +33,12 @@ setup() {
   refute_output --partial "${REPO_ORG}/${REPO_NAME}"
 }
 
+@test "A new branch is created on main branch" {
+  sha_dev=$(gh api "repos/${REPO_ORG}/${REPO_NAME}/branches" --method GET --jq '.[] | select(.name == "test_branch_before") | .commit.sha')
+  sha_main=$(gh api "repos/${REPO_ORG}/${REPO_NAME}/branches" --method GET --jq '.[] | select(.name == "main") | .commit.sha')
+  assert_equal "$sha_dev" "$sha_main"
+}
+
 @test "Template Resolution is done on a new branch without testspace information" {
   git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
   cd "${REPO_NAME}" || exit
