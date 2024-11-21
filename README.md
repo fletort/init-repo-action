@@ -231,6 +231,8 @@ For exemple the "tool" test suite contains the following tests:
   - that we are able to define undefined behavior on jinja2 template
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
 - The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
+  In this case, we are also testing:
+  - that we are able to commit directly to a new branch without PR
 - The **No Deployment scenario** tests the role when Deployment feature is disabled
 
 ## License

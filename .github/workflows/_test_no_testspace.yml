@@ -42,6 +42,8 @@ jobs:
           repository_deployment: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
           token: ${{ secrets.TEST_TOKEN }}
           testspace_link_enable: false
+          pr-created: false
+          branch-no-pr: test_not_existing_branch
 
   test_tool_result:
     name: Check
