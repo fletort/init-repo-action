@@ -123,27 +123,30 @@ All other inputs are **optional**.
 | `j2_data_url` | URL Link contening inputs variable for the jinja template. See data_url input of [fletort/jinja2-template-action]. | "" |
 | `j2_data_url_format` | Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself. See data_url_format input of [fletort/jinja2-template-action]. | `automatic` |
 | `j2_undefined_behaviour` | Define the behaviour when a not defined variable is found. Can be `Undefined`, `ChainableUndefined`, `DebugUndefined` or `StrictUndefined`. See undefined_behaviour input of [fletort/jinja2-template-action]. | `Undefined` |
+| `base-branch` | Base existing branch use to start the work. Usefull only on _not created_ repository. If not defined, the default branch is used. | '' |
+| `branch-before` | Optional branch to create on the current `base-branch` before the commit made by this action | '' |
 | `branches` | List of branches to create with protection definition. See branches input of [fletort/branch-protection-action]. | If not defined use the local file [branch_protection.yam](./branch_protection.yaml) |
 | `commit-message` | The message to use when committing changes | '[init-repo-action] Dynamic Template Resolution' |
-| `branch-no-pr` | Branch where commit will be done if a pr is not created (on default branch if not defined) | |
+| `commit-branch` | Branch where commit will be done. Default Value depends of the context. On a PR new branch "template_resolution" is used, outside a PR, base_branch is used. | |
 | `pr-created` | Indicates if a pr is created | `true` |
-| `pr-branch` | Branch where commit will be done if a pr is created. | `template_resolution` |
-| `pr-base-branch` | Sets the pull request base branch  (on default branch if not defined) | |
 | `pr-title` | The title of the pull request | `Dynamic Template Resolution` |
 | `pr-body` | The body of the pull request | `Jinja2 Template Resolution made by jinja2-template-action` |
 <!-- prettier-ignore-end -->
 
 #### Commit changes with or without PR
 
-It is possible to commit change (template resolution) directly on a branch with or without an associated PR.
+Changes (template resolution) are commited directly on the `commit-branch` with or without an associated PR.
 In all the case, the commit message is always defined with `commit-message`.
 
-- If a PR is not needed (`pr-created` is `false`), the existing branch where the commit is done is defined by `branch-no-pr`.
-- If a PR is needed, the branch where the commit is doned is defined by `pr-branch`. This branch can be created for this purpose.
-  Other attributes of the PR can be defined: `pr-base-branch` defines the PR base branch. If `pr-branch` is created, it is
-  created from this `pr-base-branch`. Then the PR title is defined with `pr-title` and the body of its description is
-  defined with `pr-body`. All the PR related procedure is managed with the [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request)
-  action.
+- If a PR is not needed (`pr-created` is `false`), the existing branch where the commit is done is defined by `commit-branch`.
+  If not defined, the `base-branch` is used. If not defined, this base-branch is the default branch.
+  If you need to keep a _pointer_ on the current commit of the existing `base-branch`, you can define a branch on it
+  with `branch-before`.
+- If a PR is needed, `pr-created` is `true`. In this case the branch where the commit is done is also defined
+  by `commit-branch` and the base branch of the PR is defined by `base-branch`.
+  Other attributes of the PR can be defined: The PR title is defined with `pr-title` and the body of its description is
+  defined with `pr-body`. All the PR related procedure is managed with the
+  [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request) action.
 
 #### token
 
@@ -231,6 +234,8 @@ For exemple the "tool" test suite contains the following tests:
   - that we are able to define undefined behavior on jinja2 template
 - The **publishing feature** is tested only in one of the scenario, and appears as a third _test suite_ on TestSpace side.
 - The **No Testspace scenario** tests the role when TestSpace creation feature is disabled
+  In this case, we are also testing:
+  - that we are able to commit directly to a new branch without PR
 - The **No Deployment scenario** tests the role when Deployment feature is disabled
 
 ## License

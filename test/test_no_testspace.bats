@@ -33,12 +33,23 @@ setup() {
   refute_output --partial "${REPO_ORG}/${REPO_NAME}"
 }
 
-@test "Template Resolution without testspace information" {
+@test "A new branch is created on main branch" {
+  sha_dev=$(gh api "repos/${REPO_ORG}/${REPO_NAME}/branches" --method GET --jq '.[] | select(.name == "test_branch_before") | .commit.sha')
+  sha_main=$(gh api "repos/${REPO_ORG}/${REPO_NAME}/branches" --method GET --jq '.[] | select(.name == "main") | .commit.sha')
+  assert_equal "$sha_dev" "$sha_main"
+}
+
+@test "Template Resolution is done on a new branch without testspace information" {
   git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
   cd "${REPO_NAME}" || exit
   git fetch
-  git switch template_resolution
+  git switch test_not_existing_branch
   assert_file_exist ./README.md
   assert_file_contains ./README.md "TestSpaceId:[[:space:]]\+$"
   cd ..
+}
+
+@test "A PR is not open for the Template Resolution" {
+  run gh pr list --repo "${REPO_ORG}/${REPO_NAME}" --json title,headRefName,baseRefName
+  assert_line "[]"
 }
