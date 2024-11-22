@@ -60,22 +60,22 @@ inputs:
   j2_undefined_behaviour:
     descrition: Behaviour of jinja2 engine when an undefined variable is found.
     default:
+  base_branch:
+    description: Base existing branch use to start the work. Usefull only on `not created` repository. If not defined, the default branch is used.
+    default:
   branches:
     description: JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
     default: automatic
+  branch-before:
+    description: Branch to create on the base branch before the commit
   commit-message:
     description: The message to use when committing changes
     default: "[init-repo-action] Dynamic Template Resolution"
-  branch-no-pr:
-    description: Branch where commit will be done if a pr is not created (on default branch if not defined)
-  pr-branch:
-    description: Branch where commit will be done if a pr is created.
-    default: template_resolution
+  commit-branch:
+    description: Branch where commit will be done. Default Value depends of the context. On a PR new branch "template_resolution" is used, outside a PR, base_branch is used.
   pr-created:
     description: Indicates if a pr is created
     default: "true"
-  pr-base-branch:
-    description: Sets the pull request base branch  (on default branch if not defined)
   pr-title:
     description: The title of the pull request.
     default: Dynamic Template Resolution
@@ -112,14 +112,19 @@ runs:
         repository: ${{ inputs.repository }}
         path: ${{ inputs.repository }}
         token: ${{ inputs.token }}
+        branch: ${{ inputs.base_branch }}
 
-    - name: Extract default branch name
+    - name: Extract base branch name
       id: extract_branch
       shell: bash
       run: |
-        BASE_BRANCH_REF="${{ steps.checkout.outputs.ref }}"
-        BASE_BRANCH="${BASE_BRANCH_REF#refs/heads/}"
-        echo "GIT_BRANCH=${BASE_BRANCH}" >> "$GITHUB_ENV"
+        if [[ "${{ inputs.base_branch }}" == "" ]]; then
+          BASE_BRANCH_REF="${{ steps.checkout.outputs.ref }}"
+          BASE_BRANCH="${BASE_BRANCH_REF#refs/heads/}"
+          echo "BASE_BRANCH=${BASE_BRANCH}" >> "$GITHUB_ENV"
+        else
+          echo "BASE_BRANCH=${{ inputs.base_branch }}" >> "$GITHUB_ENV"
+        fi
         echo "Default Base Branch is: $BASE_BRANCH"
 
     - name: "Manage connection to internal global deployement repo: ${{ inputs.repository_deployment }}"
@@ -187,14 +192,24 @@ runs:
           mv "${dirpath}" "${newdirpath}"
         done
 
-    - name: Create a Simple Commmit for Template Resolution
+    - name: New Branch before commit - Create It
+      if: ${{ inputs.branch-before }}
+      uses: fletort/branch-protection-action@v1
+      with:
+        repository: ${{ inputs.repository }}
+        token: ${{ inputs.token }}
+        branches: |
+          ${{ inputs.branch-before }}:
+            baseBranch: ${{ env.BASE_BRANCH }}
+
+    - name: Create The Template Resolution Commit
       if: ${{ inputs.pr-created != 'true' }}
       uses: actions-js/push@master
       with:
         repository: ${{ inputs.repository }}
         directory: ${{ inputs.repository }}
         message: ${{ inputs.commit-message }}
-        branch: ${{ inputs.branch-no-pr && inputs.branch-no-pr || env.GIT_BRANCH }}
+        branch: ${{ inputs.commit-branch && inputs.commit-branch || env.BASE_BRANCH }}
         github_token: "${{ inputs.token }}"
 
     - name: Define Branch Protection
@@ -210,8 +225,8 @@ runs:
       with:
         path: ${{ inputs.repository }}
         commit-message: ${{ inputs.commit-message }}
-        branch: ${{ inputs.pr-branch }}
-        base: ${{ inputs.pr-base-branch && inputs.pr-base-branch || env.GIT_BRANCH }}
+        branch: ${{ inputs.commit-branch && inputs.commit-branch || 'template_resolution' }}
+        base: ${{ env.BASE_BRANCH }}
         title: ${{ inputs.pr-title}}
         body: ${{ inputs.pr-body }}
         token: ${{ inputs.token }}
