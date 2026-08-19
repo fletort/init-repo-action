@@ -221,7 +221,7 @@ runs:
 
     - name: Create Pull Request for Template Resolution
       if: ${{ inputs.pr-created == 'true' }}
-      uses: peter-evans/create-pull-request@v7
+      uses: peter-evans/create-pull-request@v8
       with:
         path: ${{ inputs.repository }}
         commit-message: ${{ inputs.commit-message }}
