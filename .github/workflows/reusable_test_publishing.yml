@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       # Dispatch an action and get the run ID and URL
       - name: Start the functional test for publishing action
@@ -42,7 +42,7 @@ jobs:
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
       - name: Checkout Published repository
         id: checkout_published
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           repository: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
           path: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
