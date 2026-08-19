@@ -24,7 +24,7 @@ jobs:
 
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Create AutoInit repository
         id: create_autoinit
