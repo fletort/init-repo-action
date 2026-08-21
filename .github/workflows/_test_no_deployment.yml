@@ -30,7 +30,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Run Local Action Without Template, without Deployment Repo
         id: run-local-action
@@ -49,7 +49,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Install bats
         id: install-bats
