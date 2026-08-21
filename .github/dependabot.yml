@@ -8,3 +8,7 @@ updates:
       - actions
     schedule:
       interval: daily
+    groups:
+      github-actions:
+        patterns:
+          - '*'
