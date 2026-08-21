@@ -13,7 +13,7 @@ inputs:
     default: no_init
   repository_deployment:
     description: >
-      Repo on which we want to make deployement. For example owner/my_published_repo.
+      Repo on which we want to make deployment. For example owner/my_published_repo.
       If not specified, the deployment feature is not initialized.
     default:
   token:
@@ -28,13 +28,13 @@ inputs:
   testspace_link_enable:
     description: >
       Indicates if the testspace link feature is enable. If set to `true` the
-      `testspace_token` attribut is *mandatory*. Default is `false`.
+      `testspace_token` attribute is *mandatory*. Default is `false`.
     default: "false"
   testspace_token:
     description: >
       Personal testspace token used to interact with the testspace API to create
       the project. *Mandatory* is the testspace feature is enable with the help
-      of the `testspace_link_enable` attribut.
+      of the `testspace_link_enable` attribute.
     default:
   testspace_domain:
     description: >
@@ -58,10 +58,10 @@ inputs:
     description: Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself.
     default: automatic
   j2_undefined_behaviour:
-    descrition: Behaviour of jinja2 engine when an undefined variable is found.
+    description: Behaviour of jinja2 engine when an undefined variable is found.
     default:
   base_branch:
-    description: Base existing branch use to start the work. Usefull only on `not created` repository. If not defined, the default branch is used.
+    description: Base existing branch use to start the work. Useful only on `not created` repository. If not defined, the default branch is used.
     default:
   branches:
     description: JSON or YAML branches description. The definition can be directly done, through a local file or a distant one (web link).
@@ -127,7 +127,7 @@ runs:
         fi
         echo "Default Base Branch is: $BASE_BRANCH"
 
-    - name: "Manage connection to internal global deployement repo: ${{ inputs.repository_deployment }}"
+    - name: "Manage connection to internal global deployment repo: ${{ inputs.repository_deployment }}"
       if: ${{ inputs.repository_deployment != '' }}
       id: report_repo_cnx
       uses: fletort/generate-ssh-deploy-repo-action@v1
