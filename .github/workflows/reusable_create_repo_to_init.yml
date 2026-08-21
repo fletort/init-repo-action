@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Clean Previous Test Data
         env:
@@ -46,7 +46,7 @@ jobs:
 
       - name: Checkout Repository
         id: checkout_template
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
           path: ${{ inputs.repo_name }}

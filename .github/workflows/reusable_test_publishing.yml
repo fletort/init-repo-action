@@ -19,7 +19,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Dispatch an action and get the run ID and URL
       - name: Start the functional test for publishing action
@@ -34,7 +34,7 @@ jobs:
 
       # Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
       - name: Waiting end of the functional test for publishing action
-        uses: Codex-/await-remote-run@v1.12.2
+        uses: Codex-/await-remote-run@v1.13.0
         with:
           token: ${{ github.token }}
           repo: ${{ vars.TEST_NEW_REPO_NAME }}
@@ -42,7 +42,7 @@ jobs:
           run_id: ${{ steps.return_dispatch.outputs.run_id }}
       - name: Checkout Published repository
         id: checkout_published
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
           path: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
@@ -62,7 +62,7 @@ jobs:
 
       - name: Keep Test Report
         id: test-report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test_publishing
           path: report.xml

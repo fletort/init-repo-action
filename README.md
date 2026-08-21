@@ -113,10 +113,10 @@ All other inputs are **optional**.
 | `template` | Template Repository to use to create the repository. Indicate the repository name with owner. If not used (repository is already created) indicates `no_init` | `no_init` |
 | `repository_deployment` | Repository on which `repository` will be able to deploy to through SSH credentials. Indicate the repository name with owner. If not defined (default value), the deployment feature is not initialized. | |
 | `token` | The token that action (and used actions) will use. See token. | **MANDATORY** |
-| `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable. | `false`                                                                             |
-| `testspace_token` | Personal testspace token used to interact with the testspace API to create the project  | **MANDATORY if testspace feature is enabled with `testspace_link_enable`**          |
-| `testspace_domain`| Testspace SubDomain where the testspace project will be created                | `${{ github.repository_owner }}`                                                    |
-| `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted    | `true`                                                                              |
+| `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable. | `false` |
+| `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY if testspace feature is enabled with `testspace_link_enable`** |
+| `testspace_domain` | Testspace SubDomain where the testspace project will be created | `${{ github.repository_owner }}` |
+| `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted | `true` |
 | `j2_keep_template` | Put to `true` to keep original template file. See keep_template input of [fletort/jinja2-template-action]. | `false` |
 | `j2_data_file` | Source file contening inputs variable for the jinja template. See data_file input of [fletort/jinja2-template-action]. This file can be on the repository executing the action or from the targeted repository, [see help below](#j2-data-file). | `''` |
 | `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action]. | `automatic` |

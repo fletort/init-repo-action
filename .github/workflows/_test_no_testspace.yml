@@ -32,7 +32,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Run Local Action Without Template, without TestSpace Link
         id: run-local-action
@@ -53,7 +53,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install bats
         id: install-bats
@@ -71,7 +71,7 @@ jobs:
 
       - name: Keep Test Report
         id: test-report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.test_name }}
           path: report.xml

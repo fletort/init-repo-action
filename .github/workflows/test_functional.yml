@@ -51,9 +51,9 @@ jobs:
       # Need to checkout to give context to testspace cli
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
       - name: Testspace client install & config
         id: testspace_init
         uses: testspace-com/setup-testspace@v1
