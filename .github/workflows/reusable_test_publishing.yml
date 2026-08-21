@@ -62,7 +62,7 @@ jobs:
 
       - name: Keep Test Report
         id: test-report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: test_publishing
           path: report.xml

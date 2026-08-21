@@ -67,7 +67,7 @@ jobs:
 
       - name: Keep Test Report
         id: test-report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ env.test_name }}
           path: report.xml
