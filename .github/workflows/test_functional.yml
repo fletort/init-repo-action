@@ -44,7 +44,7 @@ jobs:
 
   report:
     if: always()
-    name: Save Test Resut
+    name: Save Test Result
     needs: [test_tool, test_autoinit, test_no_testspace, test_no_deployment]
     runs-on: ubuntu-latest
     steps:

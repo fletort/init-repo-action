@@ -1,4 +1,4 @@
-# Reusable Worflow managing Publishing Test
+# Reusable Workflow managing Publishing Test
 name: Test
 on:
   workflow_call:

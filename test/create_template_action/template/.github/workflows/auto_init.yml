@@ -25,7 +25,7 @@ jobs:
 
       - name: Auto Init
         id: test
-        uses: fake/action@v1
+        uses: ./
         with:
           repository_deployment: ${{ github.event.inputs.repository_deployment }}
           token: ${{ secrets.TEST_TOKEN }}

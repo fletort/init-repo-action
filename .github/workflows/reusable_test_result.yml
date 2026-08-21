@@ -1,4 +1,4 @@
-# Reusable Worflow managing Test by calling bats test
+# Reusable Workflow managing Test by calling bats test
 name: Test Result
 on:
   workflow_call:

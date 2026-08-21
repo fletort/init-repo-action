@@ -3,18 +3,13 @@ description: "Action to Init the local Test Template Repository."
 inputs:
   repo_name:
     required: true
-    type: string
   repo_org:
     required: true
-    type: string
   is_template:
-    type: boolean
     default: true
   token:
-    type: string
     required: true
   uuid_filename:
-    type: string
     default: uuid.txt
 
 outputs:
