@@ -53,7 +53,7 @@ jobs:
         id: checkout
         uses: actions/checkout@v7
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v8
       - name: Testspace client install & config
         id: testspace_init
         uses: testspace-com/setup-testspace@v1
