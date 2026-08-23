@@ -65,7 +65,7 @@ runs:
         echo "uuid=${uuid}" >> "$GITHUB_OUTPUT"
         repo=${{ github.repository }}
         repo_escape="${repo/\//\\\/}"
-        sed -i -e "s/fake\/action@v1/${repo_escape}@${{ github.sha }}/g" ${REPO_NAME}/.github/workflows/auto_init.yml
+        sed -i -e "s/.\//${repo_escape}@${{ github.sha }}/g" ${REPO_NAME}/.github/workflows/auto_init.yml
       env:
         REPO_NAME: ${{ inputs.repo_name }}
         TEST_UUID_FILENAME: ${{ inputs.uuid_filename }}

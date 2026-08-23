@@ -180,7 +180,7 @@ runs:
           rm "${INPUTS_REPOSITORY}/$workflowPath"
         elif [ -d "${INPUTS_REPOSITORY}/.github/workflows/" ]; then
           echo "Remove all workflow calling init-repo-action"
-          { grep -Er 'uses:\s*fletort/init-repo-action@' '${INPUTS_REPOSITORY}/.github/workflows/' || true ; } | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
+          { grep -Er "uses:\s*fletort/init-repo-action@" "${INPUTS_REPOSITORY}/.github/workflows/" || true ; } | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
         fi
       env:
         GH_TOKEN: ${{ inputs.token }}
