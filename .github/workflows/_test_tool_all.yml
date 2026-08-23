@@ -25,7 +25,7 @@ jobs:
           gh repo delete ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }} --yes || true
 
       - name: Create Published repository
-        uses: f1lander/create-repository-action@v1.0.2
+        uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
         with:
           name: "${{ vars.TEST_PUBLISHED_REPO_NAME }}"
           org: "${{ vars.TEST_PUBLISHED_REPO_ORG }}"
@@ -33,7 +33,7 @@ jobs:
 
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Create Template repository
         id: create_template
@@ -53,7 +53,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Run Local Action
         id: run-local-action

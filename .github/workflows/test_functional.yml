@@ -51,12 +51,12 @@ jobs:
       # Need to checkout to give context to testspace cli
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
       - name: Testspace client install & config
         id: testspace_init
-        uses: testspace-com/setup-testspace@v1
+        uses: testspace-com/setup-testspace@5fc620521eddeba83c1c0dd58f5a524adf474c93 # v1
         with:
           domain: ${{ github.repository_owner }}
       - name: Testspace push test content

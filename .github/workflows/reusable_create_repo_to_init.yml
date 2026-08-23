@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Clean Previous Test Data
         env:
@@ -38,7 +38,7 @@ jobs:
           done
 
       - name: Create repository
-        uses: f1lander/create-repository-action@v1.0.2
+        uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
         with:
           name: "${{ inputs.repo_name }}"
           org: "${{ inputs.repo_org }}"
@@ -46,7 +46,7 @@ jobs:
 
       - name: Checkout Repository
         id: checkout_template
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
           path: ${{ inputs.repo_name }}
@@ -62,7 +62,7 @@ jobs:
           echo "uuid=${uuid}" >> "$GITHUB_OUTPUT"
 
       - name: Commit & Push changes To Repository
-        uses: actions-js/push@master
+        uses: actions-js/push@968f4695ca558093eadb24ad83cc5891f47e0cdc # master
         with:
           github_token: "${{ secrets.TEST_TOKEN }}"
           directory: ${{ inputs.repo_name }}

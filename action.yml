@@ -107,7 +107,7 @@ runs:
 
     - name: Checkout
       id: checkout
-      uses: actions/checkout@v7
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       with:
         repository: ${{ inputs.repository }}
         path: ${{ inputs.repository }}
@@ -130,7 +130,7 @@ runs:
     - name: "Manage connection to internal global deployment repo: ${{ inputs.repository_deployment }}"
       if: ${{ inputs.repository_deployment != '' }}
       id: report_repo_cnx
-      uses: fletort/generate-ssh-deploy-repo-action@v1
+      uses: fletort/generate-ssh-deploy-repo-action@fd04e89f139928893a81007319e565024e228167 # v1
       with:
         client_repo: ${{ inputs.repository }}
         deploy_repo: ${{ inputs.repository_deployment }}
@@ -139,7 +139,7 @@ runs:
     - name: "TestSpace Project Creation"
       if: ${{ inputs.testspace_link_enable == 'true' }}
       id: testspace_creation
-      uses: fletort/testspace-create-action@v1
+      uses: fletort/testspace-create-action@6263934f560a61209fcb8afbd69271a3d0924931 # v1
       with:
         token: ${{ inputs.testspace_token }}
         repository: ${{ inputs.repository }}
@@ -158,7 +158,7 @@ runs:
         data_url: ${{ inputs.j2_data_url }}
         data_url_format: ${{ inputs.j2_data_url_format }}
         undefined_behaviour: ${{ inputs.j2_undefined_behaviour }}
-      uses: fletort/jinja2-template-action@v1
+      uses: fletort/jinja2-template-action@cee4fb7f250dab558dbbb5c527931bf9d6095380 # v1
 
     - name: Remove Init Workflow on Dynamic Template
       if: ${{ inputs.delete_workflow }}
@@ -194,7 +194,7 @@ runs:
 
     - name: New Branch before commit - Create It
       if: ${{ inputs.branch-before }}
-      uses: fletort/branch-protection-action@v1
+      uses: fletort/branch-protection-action@f1c37e2faa20016c56e247906ed3726948e4aec8 # v1
       with:
         repository: ${{ inputs.repository }}
         token: ${{ inputs.token }}
@@ -204,7 +204,7 @@ runs:
 
     - name: Create The Template Resolution Commit
       if: ${{ inputs.pr-created != 'true' }}
-      uses: actions-js/push@master
+      uses: actions-js/push@968f4695ca558093eadb24ad83cc5891f47e0cdc # master
       with:
         repository: ${{ inputs.repository }}
         directory: ${{ inputs.repository }}
@@ -213,7 +213,7 @@ runs:
         github_token: "${{ inputs.token }}"
 
     - name: Define Branch Protection
-      uses: fletort/branch-protection-action@v1
+      uses: fletort/branch-protection-action@f1c37e2faa20016c56e247906ed3726948e4aec8 # v1
       with:
         repository: ${{ inputs.repository }}
         token: ${{ inputs.token }}
@@ -221,7 +221,7 @@ runs:
 
     - name: Create Pull Request for Template Resolution
       if: ${{ inputs.pr-created == 'true' }}
-      uses: peter-evans/create-pull-request@v8
+      uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8
       with:
         path: ${{ inputs.repository }}
         commit-message: ${{ inputs.commit-message }}
