@@ -23,6 +23,8 @@ runs:
     - name: Checkout Local Repo
       id: checkout
       uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      with:
+        persist-credentials: false
     - name: Create Template repository
       uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
       with:
@@ -52,6 +54,7 @@ runs:
         repository: ${{ inputs.repo_org }}/${{ inputs.repo_name }}
         path: ${{ inputs.repo_name }}
         token: ${{ inputs.token }}
+        persist-credentials: false
     - name: Copy test workflow & content
       id: copy_content
       shell: bash

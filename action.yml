@@ -115,13 +115,14 @@ runs:
         path: ${{ inputs.repository }}
         token: ${{ inputs.token }}
         branch: ${{ inputs.base_branch }}
+        persist-credentials: false
 
     - name: Extract base branch name
       id: extract_branch
       shell: bash
       run: | # zizmor: ignore[github-env]
         if [[ -z "$INPUT_BASE_BRANCH" ]]; then
-          BASE_BRANCH_REF="${{ steps.checkout.outputs.ref }}"
+          BASE_BRANCH_REF="${STEPS_CHECKOUT_OUTPUTS_REF}"
           BASE_BRANCH="${BASE_BRANCH_REF#refs/heads/}"
           echo "BASE_BRANCH=${BASE_BRANCH}" >> "$GITHUB_ENV"
         else
@@ -130,6 +131,7 @@ runs:
         echo "Default Base Branch is: $BASE_BRANCH"
       env:
         INPUT_BASE_BRANCH: ${{ inputs.base_branch }}
+        STEPS_CHECKOUT_OUTPUTS_REF: ${{ steps.checkout.outputs.ref }}
 
     - name: "Manage connection to internal global deployment repo: ${{ inputs.repository_deployment }}"
       if: ${{ inputs.repository_deployment != '' }}

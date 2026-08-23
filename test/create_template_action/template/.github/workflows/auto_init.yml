@@ -38,4 +38,6 @@ jobs:
           pr-created: false
 
       - name: echo TestSpace ID ${{ steps.test.outputs.testspace_space_id }} # As requested by our test code
-        run: echo ${{ steps.test.outputs.testspace_space_id }}
+        run: echo "${STEPS_TEST_OUTPUTS_TESTSPACE_SPACE_ID}"
+        env:
+          STEPS_TEST_OUTPUTS_TESTSPACE_SPACE_ID: ${{ steps.test.outputs.testspace_space_id }}

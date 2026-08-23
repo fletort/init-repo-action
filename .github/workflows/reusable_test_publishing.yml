@@ -20,10 +20,12 @@ jobs:
       - name: Checkout Local Repo
         id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       # Dispatch an action and get the run ID and URL
       - name: Start the functional test for publishing action
-        uses: codex-/return-dispatch@e23442963c2e1aa0a88234e3cba076f8bbef8975 # v2
+        uses: codex-/return-dispatch@e23442963c2e1aa0a88234e3cba076f8bbef8975 # v2.2.0
         id: return_dispatch
         with:
           token: ${{ secrets.TEST_TOKEN }}
@@ -47,6 +49,7 @@ jobs:
           repository: ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}
           path: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
           token: "${{ secrets.TEST_TOKEN }}"
+          persist-credentials: false
 
       - name: Install bats
         id: install-bats

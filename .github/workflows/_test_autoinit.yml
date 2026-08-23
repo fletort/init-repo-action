@@ -19,12 +19,16 @@ jobs:
       - name: Clean Test Data
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          VARS_TEST_AUTOINIT_REPO_ORG: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
+          VARS_TEST_AUTOINIT_REPO_NAME: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
         run: |
-          gh repo delete ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --yes || true
+          gh repo delete "${VARS_TEST_AUTOINIT_REPO_ORG}/${VARS_TEST_AUTOINIT_REPO_NAME}" --yes || true
 
       - name: Checkout Local Repo
         id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Create AutoInit repository
         id: create_autoinit
@@ -38,10 +42,12 @@ jobs:
 
       - name: Add Secret To AutoInit repository
         run: |
-          gh secret set TEST_TOKEN --repo ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --body "${{ secrets.TEST_TOKEN }}"
-          gh secret set TESTSPACE_TOKEN --repo ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --body "${{ secrets.TESTSPACE_TOKEN }}"
+          gh secret set TEST_TOKEN --repo "${VARS_TEST_AUTOINIT_REPO_ORG}/${VARS_TEST_AUTOINIT_REPO_NAME}" --body "${{ secrets.TEST_TOKEN }}"
+          gh secret set TESTSPACE_TOKEN --repo "${VARS_TEST_AUTOINIT_REPO_ORG}/${VARS_TEST_AUTOINIT_REPO_NAME}" --body "${{ secrets.TESTSPACE_TOKEN }}"
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          VARS_TEST_AUTOINIT_REPO_ORG: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
+          VARS_TEST_AUTOINIT_REPO_NAME: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
 
   run_autoinit_action:
     name: Run
@@ -52,7 +58,7 @@ jobs:
     steps:
       # Dispatch an action and get the run ID and URL
       - name: Start the AutoInit Workflow
-        uses: codex-/return-dispatch@e23442963c2e1aa0a88234e3cba076f8bbef8975 # v2
+        uses: codex-/return-dispatch@e23442963c2e1aa0a88234e3cba076f8bbef8975 # v2.2.0
         id: return_dispatch
         with:
           token: ${{ secrets.TEST_TOKEN }}
@@ -74,12 +80,15 @@ jobs:
       - name: Gets Workflow Output
         id: output
         run: |
-          line=$(gh run view ${{ steps.return_dispatch.outputs.run_id }} -R ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --json jobs --jq '.jobs[].steps[] | select( .name | contains("TestSpace")) | .name')
+          line=$(gh run view "${STEPS_RETURN_DISPATCH_OUTPUTS_RUN_ID}" -R "${VARS_TEST_AUTOINIT_REPO_ORG}/${VARS_TEST_AUTOINIT_REPO_NAME}" --json jobs --jq '.jobs[].steps[] | select( .name | contains("TestSpace")) | .name')
           [[ $line =~ ([1-9]+) ]]
           id=${BASH_REMATCH[1]}
           echo "testspace_space_id=${id}" >> "$GITHUB_OUTPUT"
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          STEPS_RETURN_DISPATCH_OUTPUTS_RUN_ID: ${{ steps.return_dispatch.outputs.run_id }}
+          VARS_TEST_AUTOINIT_REPO_ORG: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
+          VARS_TEST_AUTOINIT_REPO_NAME: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
 
   test_autoinit_result:
     name: Check
@@ -91,7 +100,7 @@ jobs:
       repo_name: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
       repo_org: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
       test_name: test_autoinit
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   clean:
     if: always()
@@ -102,5 +111,7 @@ jobs:
       - name: Clean Test Data
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          VARS_TEST_AUTOINIT_REPO_ORG: ${{ vars.TEST_AUTOINIT_REPO_ORG }}
+          VARS_TEST_AUTOINIT_REPO_NAME: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
         run: |
-          gh repo delete ${{ vars.TEST_AUTOINIT_REPO_ORG }}/${{ vars.TEST_AUTOINIT_REPO_NAME }} --yes || true
+          gh repo delete "${VARS_TEST_AUTOINIT_REPO_ORG}/${VARS_TEST_AUTOINIT_REPO_NAME}" --yes || true

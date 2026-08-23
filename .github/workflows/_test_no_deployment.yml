@@ -21,7 +21,7 @@ jobs:
     with:
       repo_name: ${{ vars.TEST_REPO_NO_DEPLOYMENT_NAME }}
       repo_org: ${{ vars.TEST_REPO_NO_DEPLOYMENT_ORG }}
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   run_tool_action:
     name: Run
@@ -31,6 +31,8 @@ jobs:
       - name: Checkout Local Repo
         id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Run Local Action Without Template, without Deployment Repo
         id: run-local-action
@@ -50,6 +52,8 @@ jobs:
       - name: Checkout Local Repo
         id: checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Install bats
         id: install-bats
@@ -83,4 +87,4 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
         run: |
-          gh repo delete ${{ env.repo_org }}/${{ env.repo_name }} --yes || true
+          gh repo delete "${repo_org}/${repo_name}" --yes || true
