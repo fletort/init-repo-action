@@ -34,9 +34,11 @@ runs:
       if: ${{ inputs.is_template }}
       shell: bash
       run: |
-        gh repo edit ${{ inputs.repo_org }}/${{ inputs.repo_name }} --template
+        gh repo edit "${REPO_ORG}/${REPO_NAME}" --template
       env:
         GH_TOKEN: "${{ inputs.token }}"
+        REPO_NAME: ${{ inputs.repo_name }}
+        REPO_ORG: ${{ inputs.repo_org }}
     - name: Create Published repository
       uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
       with:
@@ -54,13 +56,16 @@ runs:
       id: copy_content
       shell: bash
       run: |
-        cp -r ${{ github.action_path }}/template/. ${{ inputs.repo_name }}/
+        cp -r ${{ github.action_path }}/template/. ${REPO_NAME}/
         uuid=$(uuidgen)
-        echo $uuid > ${{ inputs.repo_name }}/${{ inputs.uuid_filename }}
+        echo $uuid > ${REPO_NAME}/${TEST_UUID_FILENAME}
         echo "uuid=${uuid}" >> "$GITHUB_OUTPUT"
         repo=${{ github.repository }}
         repo_escape="${repo/\//\\\/}"
-        sed -i -e "s/fake\/action@v1/${repo_escape}@${{ github.sha }}/g" ${{ inputs.repo_name }}/.github/workflows/auto_init.yml
+        sed -i -e "s/fake\/action@v1/${repo_escape}@${{ github.sha }}/g" ${REPO_NAME}/.github/workflows/auto_init.yml
+      env:
+        REPO_NAME: ${{ inputs.repo_name }}
+        TEST_UUID_FILENAME: ${{ inputs.uuid_filename }}
     - name: Commit & Push changes To Template repository
       uses: actions-js/push@968f4695ca558093eadb24ad83cc5891f47e0cdc # master
       with:

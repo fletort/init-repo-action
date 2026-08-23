@@ -97,13 +97,15 @@ runs:
       # We are waiting to see the main branch on the created repo
       # without that we have an error on the following checkout
       run: |
-        gh repo create ${{ inputs.repository }} --public --template ${{ inputs.template }}
-        while [[ -z $(git ls-remote --heads https://github.com/${{ inputs.repository }}.git main) ]]
+        gh repo create ${REPOSITORY} --public --template ${TEMPLATE}
+        while [[ -z $(git ls-remote --heads https://github.com/${REPOSITORY}.git main) ]]
         do
           sleep 1
         done
       env:
         GH_TOKEN: ${{ inputs.token }}
+        REPOSITORY: ${{ inputs.repository }}
+        TEMPLATE: ${{ inputs.template }}
 
     - name: Checkout
       id: checkout
@@ -117,15 +119,17 @@ runs:
     - name: Extract base branch name
       id: extract_branch
       shell: bash
-      run: |
-        if [[ "${{ inputs.base_branch }}" == "" ]]; then
+      run: | # zizmor: ignore[github-env]
+        if [[ -z "$INPUT_BASE_BRANCH" ]]; then
           BASE_BRANCH_REF="${{ steps.checkout.outputs.ref }}"
           BASE_BRANCH="${BASE_BRANCH_REF#refs/heads/}"
           echo "BASE_BRANCH=${BASE_BRANCH}" >> "$GITHUB_ENV"
         else
-          echo "BASE_BRANCH=${{ inputs.base_branch }}" >> "$GITHUB_ENV"
+          echo "BASE_BRANCH=$INPUT_BASE_BRANCH" >> "$GITHUB_ENV"
         fi
         echo "Default Base Branch is: $BASE_BRANCH"
+      env:
+        INPUT_BASE_BRANCH: ${{ inputs.base_branch }}
 
     - name: "Manage connection to internal global deployment repo: ${{ inputs.repository_deployment }}"
       if: ${{ inputs.repository_deployment != '' }}
@@ -163,21 +167,22 @@ runs:
     - name: Remove Init Workflow on Dynamic Template
       if: ${{ inputs.delete_workflow }}
       shell: bash
-      env:
-        GH_TOKEN: ${{ inputs.token }}
       run: |
-        if [[ "${{ github.repository }}" == "${{ inputs.repository }}" ]]; then
+        if [[ "${{ github.repository }}" == "${INPUTS_REPOSITORY}" ]]; then
         echo "Remove current workflow"
           workflowPath=$(gh api \
             -H "Accept: application/vnd.github+json" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             /repos/${{ github.repository }}/actions/runs/${{ github.run_id }} \
             --jq .path)
-          rm "${{ inputs.repository }}/$workflowPath"
-        elif [ -d "${{ inputs.repository }}/.github/workflows/" ]; then
+          rm "${INPUTS_REPOSITORY}/$workflowPath"
+        elif [ -d "${INPUTS_REPOSITORY}/.github/workflows/" ]; then
           echo "Remove all workflow calling init-repo-action"
-          { grep -Er 'uses:\s*fletort/init-repo-action@' '${{ inputs.repository }}/.github/workflows/' || true ; } | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
+          { grep -Er 'uses:\s*fletort/init-repo-action@' '${INPUTS_REPOSITORY}/.github/workflows/' || true ; } | sed -e 's/:.*//' | xargs --no-run-if-empty -L1 rm -r
         fi
+      env:
+        GH_TOKEN: ${{ inputs.token }}
+        INPUTS_REPOSITORY: ${{ inputs.repository }}
 
     - name: Rename Specific Directories
       shell: bash
