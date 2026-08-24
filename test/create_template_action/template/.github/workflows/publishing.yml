@@ -4,12 +4,6 @@ on:
   # repository_dispatch:
   #   types: [start-test]
   workflow_dispatch:
-    #checkov:skip=CKV_GHA_7:This tool needs input from test client
-    inputs:
-      # As requested by codex-/return-dispatch@v1
-      distinct_id:
-        type: string
-        required: true
 
 permissions: read-all
 
@@ -18,11 +12,6 @@ jobs:
     name: Publish to another repo
     runs-on: ubuntu-latest
     steps:
-      - name: echo distinct ID ${{ github.event.inputs.distinct_id }} # As requested by codex-/return-dispatch@v1
-        run: echo "${DISTINCT_ID}"
-        env:
-          DISTINCT_ID: ${{ github.event.inputs.distinct_id }}
-
       - name: Checkout
         id: checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
