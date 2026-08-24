@@ -70,7 +70,7 @@ jobs:
 
       # Await Run ID ${{ steps.return_dispatch.outputs.run_id }}
       - name: Waiting end of the AutoInit Workflow
-        uses: Codex-/await-remote-run@a56c556e6434d2d7ec9438dc656143b39532324e # v1.13.0
+        uses: Codex-/await-remote-run@2512346665df8818ec7ad6aca3cdceb7626cd384 # v2.0.0
         with:
           token: ${{ github.token }}
           repo: ${{ vars.TEST_AUTOINIT_REPO_NAME }}
