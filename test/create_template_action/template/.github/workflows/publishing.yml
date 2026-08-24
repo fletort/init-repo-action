@@ -19,14 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }} # As requested by codex-/return-dispatch@v1
-        run: echo ${{ github.event.inputs.distinct_id }}
+        run: echo "${DISTINCT_ID}"
+        env:
+          DISTINCT_ID: ${{ github.event.inputs.distinct_id }}
 
       - name: Checkout
         id: checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
 
       - name: Test if we can publish
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4
         with:
           external_repository: fletort-test/init-repo-action-test-published
           publish_branch: main

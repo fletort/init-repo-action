@@ -21,11 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: echo distinct ID ${{ github.event.inputs.distinct_id }} # As requested by codex-/return-dispatch@v1
-        run: echo ${{ github.event.inputs.distinct_id }}
+        run: echo "${DISTINCT_ID}"
+        env:
+          DISTINCT_ID: ${{ github.event.inputs.distinct_id }}
 
       - name: Auto Init
         id: test
-        uses: fake/action@v1
+        uses: ./
         with:
           repository_deployment: ${{ github.event.inputs.repository_deployment }}
           token: ${{ secrets.TEST_TOKEN }}
@@ -36,4 +38,6 @@ jobs:
           pr-created: false
 
       - name: echo TestSpace ID ${{ steps.test.outputs.testspace_space_id }} # As requested by our test code
-        run: echo ${{ steps.test.outputs.testspace_space_id }}
+        run: echo "${STEPS_TEST_OUTPUTS_TESTSPACE_SPACE_ID}"
+        env:
+          STEPS_TEST_OUTPUTS_TESTSPACE_SPACE_ID: ${{ steps.test.outputs.testspace_space_id }}

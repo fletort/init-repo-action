@@ -7,7 +7,7 @@ concurrency: # As used repo name are unique, only one functional test can run in
   group: functional_test
   cancel-in-progress: false
 
-permissions: read-all
+permissions: read-all # zizmor: ignore[excessive-permissions]
 
 # Needed Global vars (to can be used in local nested reusable workflow)
 # - TEST_TEMPLATE_REPO_NAME
@@ -25,38 +25,40 @@ jobs:
   test_tool:
     name: Tool
     uses: ./.github/workflows/_test_tool_all.yml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   test_autoinit:
     name: AutoInit
     uses: ./.github/workflows/_test_autoinit.yml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   test_no_testspace:
     name: NoTestSpace
     uses: ./.github/workflows/_test_no_testspace.yml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   test_no_deployment:
     name: NoDeployment
     uses: ./.github/workflows/_test_no_deployment.yml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   report:
     if: always()
-    name: Save Test Resut
+    name: Save Test Result
     needs: [test_tool, test_autoinit, test_no_testspace, test_no_deployment]
     runs-on: ubuntu-latest
     steps:
       # Need to checkout to give context to testspace cli
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
       - name: Download all workflow run artifacts
-        uses: actions/download-artifact@v8
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
       - name: Testspace client install & config
         id: testspace_init
-        uses: testspace-com/setup-testspace@v1
+        uses: testspace-com/setup-testspace@5fc620521eddeba83c1c0dd58f5a524adf474c93 # v1
         with:
           domain: ${{ github.repository_owner }}
       - name: Testspace push test content

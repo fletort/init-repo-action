@@ -19,13 +19,19 @@ jobs:
       - name: Clean Test Data
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          VARS_TEST_TEMPLATE_REPO_ORG: ${{ vars.TEST_TEMPLATE_REPO_ORG}}
+          VARS_TEST_TEMPLATE_REPO_NAME: ${{ vars.TEST_TEMPLATE_REPO_NAME }}
+          VARS_TEST_PUBLISHED_REPO_ORG: ${{ vars.TEST_PUBLISHED_REPO_ORG }}
+          VARS_TEST_PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
+          VARS_TEST_NEW_REPO_ORG: ${{ vars.TEST_NEW_REPO_ORG }}
+          VARS_TEST_NEW_REPO_NAME: ${{ vars.TEST_NEW_REPO_NAME }}
         run: |
-          gh repo delete ${{ vars.TEST_TEMPLATE_REPO_ORG}}/${{ vars.TEST_TEMPLATE_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }} --yes || true
+          gh repo delete "${VARS_TEST_TEMPLATE_REPO_ORG}/${VARS_TEST_TEMPLATE_REPO_NAME}" --yes || true
+          gh repo delete "${VARS_TEST_PUBLISHED_REPO_ORG}/${VARS_TEST_PUBLISHED_REPO_NAME}" --yes || true
+          gh repo delete "${VARS_TEST_NEW_REPO_ORG}/${VARS_TEST_NEW_REPO_NAME}" --yes || true
 
       - name: Create Published repository
-        uses: f1lander/create-repository-action@v1.0.2
+        uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
         with:
           name: "${{ vars.TEST_PUBLISHED_REPO_NAME }}"
           org: "${{ vars.TEST_PUBLISHED_REPO_ORG }}"
@@ -33,7 +39,9 @@ jobs:
 
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Create Template repository
         id: create_template
@@ -53,7 +61,9 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Run Local Action
         id: run-local-action
@@ -84,7 +94,7 @@ jobs:
       repo_name: ${{ vars.TEST_NEW_REPO_NAME }}
       repo_org: ${{ vars.TEST_NEW_REPO_ORG }}
       test_name: test_tool
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   test_publishing_feature:
     name: Publishing
@@ -92,7 +102,7 @@ jobs:
     uses: ./.github/workflows/reusable_test_publishing.yml
     with:
       waited_uuid: ${{ needs.test_tool_prerequisite.outputs.uuid }}
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
   clean:
     if: always()
@@ -103,7 +113,13 @@ jobs:
       - name: Clean Test Data
         env:
           GH_TOKEN: ${{ secrets.TEST_TOKEN }}
+          VARS_TEST_TEMPLATE_REPO_ORG: ${{ vars.TEST_TEMPLATE_REPO_ORG}}
+          VARS_TEST_TEMPLATE_REPO_NAME: ${{ vars.TEST_TEMPLATE_REPO_NAME }}
+          VARS_TEST_PUBLISHED_REPO_ORG: ${{ vars.TEST_PUBLISHED_REPO_ORG }}
+          VARS_TEST_PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
+          VARS_TEST_NEW_REPO_ORG: ${{ vars.TEST_NEW_REPO_ORG }}
+          VARS_TEST_NEW_REPO_NAME: ${{ vars.TEST_NEW_REPO_NAME }}
         run: |
-          gh repo delete ${{ vars.TEST_TEMPLATE_REPO_ORG}}/${{ vars.TEST_TEMPLATE_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }} --yes || true
-          gh repo delete ${{ vars.TEST_NEW_REPO_ORG }}/${{ vars.TEST_NEW_REPO_NAME }} --yes || true
+          gh repo delete "${VARS_TEST_TEMPLATE_REPO_ORG}/${VARS_TEST_TEMPLATE_REPO_NAME}" --yes || true
+          gh repo delete "${VARS_TEST_PUBLISHED_REPO_ORG}/${VARS_TEST_PUBLISHED_REPO_NAME}" --yes || true
+          gh repo delete "${VARS_TEST_NEW_REPO_ORG}/${VARS_TEST_NEW_REPO_NAME}" --yes || true

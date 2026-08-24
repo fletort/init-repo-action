@@ -32,10 +32,10 @@ It can be used in two main ways:
   - on a Dynamic Template (repository that init itself), the current workflow file (calling the current action) is deleted
   - on a tool behaviour (repository targeted is not the repository calling the action), workflow contening a call to the current action are deleted
     (such workflow exist if the repository is created from a Template with Dynamic Feature)
-- Rename all directorie from the template that beging with the `$` character.
+- Rename all directorie from the template that beginning with the `$` character.
   For example the `$.github` directory will be renamed to `.github`.
   If the final directory exists, it is replaced with the content of the renamed directory.
-- Create a Commit and optionaly related Pull Request for this Template resolution code modification
+- Create a Commit and optionally related Pull Request for this Template resolution code modification
   with the help of [peter-evans/create-pull-request](https://github.com/peter-evans/create-pull-request) action.
 - Define new branch and related branch protection with the help of the [fletort/branch-protection-action]. If a simple commit is made, this step is done before the commit, if a PR is used this step is made before the Commit/PR.
 
@@ -99,7 +99,7 @@ jobs:
           testspace_token: ${{ secrets.TESTSPACE_TOKEN }}
 ```
 
-See my template-common-js [template init workflow](https://github.com/fletort/template-common-js/blob/main/.github/workflows/init_repo.yml) for an up to date Dynamic Template worflow.
+See my template-common-js [template init workflow](https://github.com/fletort/template-common-js/blob/main/.github/workflows/init_repo.yml) for an up to date Dynamic Template Workflow.
 
 ### Actions inputs
 
@@ -108,10 +108,10 @@ All other inputs are **optional**.
 
 <!-- prettier-ignore-start -->
 | Name | Description | Default |
-| --- | --- | --- |
+| ---- | ----------- | ------- |deployment
 | `repository` | Repository to create and/or init. Indicate the repository name with owner. | `${{ github.repository }}` |
 | `template` | Template Repository to use to create the repository. Indicate the repository name with owner. If not used (repository is already created) indicates `no_init` | `no_init` |
-| `repository_deployment` | Repository on which `repository` will be able to deploy to through SSH credentials. Indicate the repository name with owner. If not defined (default value), the deployement feature is not initialized. | |
+| `repository_deployment` | Repository on which `repository` will be able to deploy to through SSH credentials. Indicate the repository name with owner. If not defined (default value), the deployment feature is not initialized. | |
 | `token` | The token that action (and used actions) will use. See token. | **MANDATORY** |
 | `testspace_link_enable` | Enable or Disable the TestPace project creation Feature. Put `true` to enable. | `false` |
 | `testspace_token` | Personal testspace token used to interact with the testspace API to create the project | **MANDATORY if testspace feature is enabled with `testspace_link_enable`** |
@@ -119,11 +119,11 @@ All other inputs are **optional**.
 | `delete_workflow` | Indicates if the workflow contening the call to this action must be deleted | `true` |
 | `j2_keep_template` | Put to `true` to keep original template file. See keep_template input of [fletort/jinja2-template-action]. | `false` |
 | `j2_data_file` | Source file contening inputs variable for the jinja template. See data_file input of [fletort/jinja2-template-action]. This file can be on the repository executing the action or from the targeted repository, [see help below](#j2-data-file). | `''` |
-| `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detction is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action]. | `automatic` |
+| `j2_data_format` | Format of the `data_file`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the file extension then on the file content. See data_format input of [fletort/jinja2-template-action]. | `automatic` |
 | `j2_data_url` | URL Link contening inputs variable for the jinja template. See data_url input of [fletort/jinja2-template-action]. | "" |
 | `j2_data_url_format` | Format of the `data_url`. Can be `env`, `ini`, `yaml`, `json` or `automatic` (for automatic detection). The automatic detection is based on the http header content-type then on the content itself. See data_url_format input of [fletort/jinja2-template-action]. | `automatic` |
 | `j2_undefined_behaviour` | Define the behaviour when a not defined variable is found. Can be `Undefined`, `ChainableUndefined`, `DebugUndefined` or `StrictUndefined`. See undefined_behaviour input of [fletort/jinja2-template-action]. | `Undefined` |
-| `base-branch` | Base existing branch use to start the work. Usefull only on _not created_ repository. If not defined, the default branch is used. | '' |
+| `base-branch` | Base existing branch use to start the work. Useful only on _not created_ repository. If not defined, the default branch is used. | '' |
 | `branch-before` | Optional branch to create on the current `base-branch` before the commit made by this action | '' |
 | `branches` | List of branches to create with protection definition. See branches input of [fletort/branch-protection-action]. | If not defined use the local file [branch_protection.yam](./branch_protection.yaml) |
 | `commit-message` | The message to use when committing changes | '[init-repo-action] Dynamic Template Resolution' |
@@ -135,7 +135,7 @@ All other inputs are **optional**.
 
 #### Commit changes with or without PR
 
-Changes (template resolution) are commited directly on the `commit-branch` with or without an associated PR.
+Changes (template resolution) are committed directly on the `commit-branch` with or without an associated PR.
 In all the case, the commit message is always defined with `commit-message`.
 
 - If a PR is not needed (`pr-created` is `false`), the existing branch where the commit is done is defined by `commit-branch`.
@@ -160,7 +160,7 @@ The token must have the following permissions:
 - 'Repository Contents': To be able to Fetch the `repository` and commit to the `repository`
 - 'Repository Secrets': Store secret inside the `repository`
 - 'Repository Pull Requests': To be able to create the PR on the `repository` with the template resolution
-- 'Repository Worflows': Needed, if you are using directory renaming feature to create the `.github` directory (from a template `$.github` directory)
+- 'Repository Workflows': Needed, if you are using directory renaming feature to create the `.github` directory (from a template `$.github` directory)
 
 #### j2 data file
 
@@ -202,7 +202,7 @@ Specific Variable are injected by this action, and can be used in your template 
 
 | Name                 | Description                                                                                                                                                                                                                                                             |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| REPOSITORY_PATH      | Repository that is initalized (with the owner). It is the value of the `repository` input.                                                                                                                                                                              |
+| REPOSITORY_PATH      | Repository that is initialized (with the owner). It is the value of the `repository` input.                                                                                                                                                                             |
 | TESTSPACE_SPACE_ID   | ID of the created Testspace Space. This is the output of the [fletort/testspace-create-action](https://github.com/fletort/testspace-create-action). If not testspace space is initialized (`testspace_link_enable` to false), the value of TESTSPACE_SPACE_ID is empty. |
 | DEPLOYMENT_REPO_PATH | Repository on which deployment is possible (with the owner). It is the value of the `repository_deployment` input. If no deployment feature is not initialized, the value of DEPLOYMENT_REPO_PATH is empty.                                                             |
 
@@ -218,7 +218,7 @@ and tests results are send to TestSpace:
 
 ![alt](./test/img/testspace_suites.png)
 
-For exemple the "tool" test suite contains the following tests:
+For example the "tool" test suite contains the following tests:
 
 ![alt](./test/img/testspace_tool_scenary.png)
 

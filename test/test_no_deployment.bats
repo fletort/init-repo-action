@@ -6,7 +6,7 @@
 # - TEST_UUID_FILE: Name of the file (inside REPO_NAME directory) contening the UUID
 # - WAITED_UUID: UUID value that musy be fond in the ${TEST_UUID_FILE}
 # - TESTSPACE_SPACE_ID: TestSpae Id that should be created
-# - TESTSPACE_TOKEN: TestSpace token to used for WabApi authentification
+# - TESTSPACE_TOKEN: TestSpace token to used for WabApi authentication
 # - PUBLISHED_REPO_ORG: Owner of the Published Repo
 # - PUBLISHED_REPO_NAME: Name of the Published Repo
 # - GH_TOKEN: Token used by gh cli
@@ -33,7 +33,7 @@ setup() {
   assert_output --partial "${REPO_ORG}/${REPO_NAME}"
 }
 
-@test "Template Resolution without deployement information" {
+@test "Template Resolution without deployment information" {
   git clone "https://github.com/${REPO_ORG}/${REPO_NAME}.git" "${REPO_NAME}"
   cd "${REPO_NAME}" || exit
   git fetch

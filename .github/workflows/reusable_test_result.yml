@@ -1,4 +1,4 @@
-# Reusable Worflow managing Test by calling bats test
+# Reusable Workflow managing Test by calling bats test
 name: Test Result
 on:
   workflow_call:
@@ -33,7 +33,9 @@ jobs:
     steps:
       - name: Checkout Local Repo
         id: checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
 
       - name: Install bats
         id: install-bats
@@ -51,12 +53,13 @@ jobs:
           PUBLISHED_REPO_ORG: ${{ vars.TEST_PUBLISHED_REPO_ORG }}
           PUBLISHED_REPO_NAME: ${{ vars.TEST_PUBLISHED_REPO_NAME }}
           GH_TOKEN: ${{ secrets.test_token }}
+          INPUT_TEST_NAME: ${{ inputs.test_name }}
         run: |
-          ./test/bats/bin/bats --report-formatter junit test/${{ inputs.test_name }}.bats
+          ./test/bats/bin/bats --report-formatter junit test/"${INPUT_TEST_NAME}".bats
 
       - name: Keep Test Report
         id: test-report
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{ inputs.test_name }}
           path: report.xml
