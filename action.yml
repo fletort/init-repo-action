@@ -114,7 +114,7 @@ runs:
         repository: ${{ inputs.repository }}
         path: ${{ inputs.repository }}
         token: ${{ inputs.token }}
-        branch: ${{ inputs.base_branch }}
+        ref: ${{ inputs.base_branch }}
         persist-credentials: false
 
     - name: Extract base branch name
