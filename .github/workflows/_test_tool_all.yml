@@ -31,11 +31,12 @@ jobs:
           gh repo delete "${VARS_TEST_NEW_REPO_ORG}/${VARS_TEST_NEW_REPO_NAME}" --yes || true
 
       - name: Create Published repository
-        uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
-        with:
-          name: "${{ vars.TEST_PUBLISHED_REPO_NAME }}"
-          org: "${{ vars.TEST_PUBLISHED_REPO_ORG }}"
-          access-token: "${{ secrets.TEST_TOKEN }}"
+        shell: bash
+        run: |
+          gh repo create "${REPOSITORY}" --public --add-readme
+        env:
+          GH_TOKEN: "${{ secrets.TEST_TOKEN }}"
+          REPOSITORY: "${{ vars.TEST_PUBLISHED_REPO_ORG }}/${{ vars.TEST_PUBLISHED_REPO_NAME }}"
 
       - name: Checkout Local Repo
         id: checkout
