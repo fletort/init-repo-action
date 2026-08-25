@@ -26,11 +26,12 @@ runs:
       with:
         persist-credentials: false
     - name: Create Template repository
-      uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
-      with:
-        name: ${{ inputs.repo_name }}
-        org: ${{ inputs.repo_org }}
-        access-token: "${{ inputs.token }}"
+      shell: bash
+      run: |
+        gh repo create ${REPOSITORY} --public --add-readme
+      env:
+        GH_TOKEN: "${{ inputs.token }}"
+        REPOSITORY: "${{ inputs.repo_org }}/${{ inputs.repo_name }}"
 
     - name: Switch repository as a template
       if: ${{ inputs.is_template }}
@@ -41,12 +42,6 @@ runs:
         GH_TOKEN: "${{ inputs.token }}"
         REPO_NAME: ${{ inputs.repo_name }}
         REPO_ORG: ${{ inputs.repo_org }}
-    - name: Create Published repository
-      uses: f1lander/create-repository-action@790b25d255717b5a81416a8390f3344396181805 # v1.0.2
-      with:
-        name: ${{ inputs.repo_name }}
-        org: ${{ inputs.repo_org }}
-        access-token: "${{ inputs.token }}"
     - name: Checkout Template repository
       id: checkout_template
       uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
