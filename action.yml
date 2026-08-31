@@ -201,7 +201,7 @@ runs:
 
     - name: New Branch before commit - Create It
       if: ${{ inputs.branch-before }}
-      uses: fletort/branch-protection-action@f1c37e2faa20016c56e247906ed3726948e4aec8 # v1
+      uses: fletort/branch-protection-action@f9628c8824c5ce84f5c06847ce2bd51194667932 # v1
       with:
         repository: ${{ inputs.repository }}
         token: ${{ inputs.token }}
@@ -220,7 +220,7 @@ runs:
         github_token: "${{ inputs.token }}"
 
     - name: Define Branch Protection
-      uses: fletort/branch-protection-action@f1c37e2faa20016c56e247906ed3726948e4aec8 # v1
+      uses: fletort/branch-protection-action@f9628c8824c5ce84f5c06847ce2bd51194667932 # v1
       with:
         repository: ${{ inputs.repository }}
         token: ${{ inputs.token }}
